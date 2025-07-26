@@ -4,8 +4,9 @@ using UnityEngine;
 public class BallShootButton : MonoBehaviour
 {
     [SerializeField] private BallShooter ballShooter;
+    
 
-    public void ShootPerfect()
+        public void ShootPerfect()
     {
         ballShooter.ShootWithOutcome(ShotType.Perfect);
     }
@@ -22,6 +23,16 @@ public class BallShootButton : MonoBehaviour
 
     public void ShootMiss()
     {
-        ballShooter.ShootWithOutcome(ShotType.Miss);
+        ballShooter.ShootWithOutcome(ShotType.LowMiss);
+    }
+
+    public void ShootCloseMiss()
+    {
+        ballShooter.ShootWithOutcome(ShotType.CloseMiss);
+    }
+
+    public void ShootBackboardMiss()
+    {
+        ballShooter.ShootWithOutcome(ShotType.BackboardMiss);
     }
 }

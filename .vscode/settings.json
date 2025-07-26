@@ -51,5 +51,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "Basketball Stars.sln"
+    "dotnet.defaultSolution": "berkcan.topcu.basket-challenge.sln"
 }
