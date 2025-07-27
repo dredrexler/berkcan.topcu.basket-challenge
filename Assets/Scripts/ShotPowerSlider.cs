@@ -14,6 +14,8 @@ public class ShotPowerSlider : MonoBehaviour
     private float finalValue = 0f;
 
     public ShotManager shotManager;
+    [SerializeField] private RectTransform sliderAreaRect;
+
 
     void Start()
     {
@@ -77,11 +79,24 @@ public class ShotPowerSlider : MonoBehaviour
 
     private void SetZoneIndicator(RectTransform indicator, ShotZone zone)
     {
-        float height = ((zone.maxValue - zone.minValue) * ((RectTransform)powerSlider.fillRect).rect.height);
-        float center = (zone.minValue + zone.maxValue) / 2f * ((RectTransform)powerSlider.fillRect).rect.height;
+        float areaHeight = sliderAreaRect.rect.height;
+
+        float height = (zone.maxValue - zone.minValue) * areaHeight;
+        float bottom = zone.minValue * areaHeight;
+            // Manually correct if it's the backboard indicator
+        if (zone.shotType == ShotType.Backboard)
+        {
+            bottom -= 0.04f * areaHeight; // move it 0.04 lower
+        }
+
         indicator.sizeDelta = new Vector2(indicator.sizeDelta.x, height);
-        indicator.anchoredPosition = new Vector2(indicator.anchoredPosition.x, center);
-    }
+        indicator.anchoredPosition = new Vector2(indicator.anchoredPosition.x, bottom);
+    
+}
+
+
+
+
 
     public ShotType GetShotTypeFromValue(float value)
     {

@@ -12,7 +12,37 @@ public class ShotManager : MonoBehaviour
     
     [SerializeField] private CameraController cameraController;
 
-    
+    [SerializeField] private BackboardBonusManager backboardBonusManager;
+
+
+    void Start()
+    {
+        SetInitialPosition();
+    }
+
+        private void SetInitialPosition()
+    {
+        int index;
+        Vector3 pos = positionManager.GetRandomPosition(out index);
+        ballShooter.currentPositionIndex = index;
+
+        // Apply positioning logic
+        Vector3 adjustedPos = pos;
+        adjustedPos.y -= 2.1f;
+        shooter.position = adjustedPos;
+        shooter.LookAt(ballShooter.target);
+
+        // Apply rotation offsets
+        Vector3 euler = shooter.rotation.eulerAngles;
+        euler.x += 28f;
+        euler.y -= 180f;
+        euler.z += 180f;
+        shooter.rotation = Quaternion.Euler(euler);
+
+        // Place ball and rotate it too
+        ballShooter.MoveToPosition(pos);
+        ballShooter.transform.LookAt(ballShooter.target);
+    }
     public void StartShot(ShotType type)
     {
         Debug.Log("Trying to start shot");
@@ -63,7 +93,7 @@ public class ShotManager : MonoBehaviour
             shooter.rotation = Quaternion.Euler(euler);
             ballShooter.MoveToPosition(newPos);
             ballShooter.transform.LookAt(ballShooter.target);
-        
+            
         
         if (!status.hasScored)
         {
@@ -79,7 +109,8 @@ public class ShotManager : MonoBehaviour
         }
         
         Debug.Log("Shot completed, moving to new position");
-
+        backboardBonusManager.TrySpawnBonus();
+        backboardBonusManager.RegisterShot();
         status.hitGround = false;
         status.hasScored = false;
         shotInProgress = false;

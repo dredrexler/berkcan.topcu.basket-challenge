@@ -8,26 +8,56 @@ public class SwipeInputHandler : MonoBehaviour
     [SerializeField] private ShotManager shotManager;
 
     private Vector2 startTouch;
+    private float swipeTimer = 0f;
     private bool isSwiping = false;
+    private bool shotFired = false;
+    private const float maxSwipeDuration = 0.75f;
 
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
             startTouch = Input.mousePosition;
+            swipeTimer = 0f;
             isSwiping = true;
+            shotFired = false;
         }
-        else if (Input.GetMouseButton(0) && isSwiping)
+
+        if (isSwiping && !shotFired)
         {
-            float swipeDistance = Input.mousePosition.y - startTouch.y;
-            float normalized = Mathf.Clamp01(swipeDistance / 500f); // 500f = swipe height sensitivity
-            shotSlider.SetFill(normalized);
+            swipeTimer += Time.deltaTime;
+
+            Vector2 currentTouch = Input.mousePosition;
+            float swipeDistance = currentTouch.y - startTouch.y;
+            float normalized = Mathf.Clamp01(swipeDistance / 500f);
+
+            // Prevent slider from decreasing
+            if (normalized > powerSlider.value)
+            {
+                powerSlider.value = normalized;
+            }
+
+
+            if (swipeTimer >= maxSwipeDuration)
+            {
+                FireShot();
+            }
         }
-        else if (Input.GetMouseButtonUp(0) && isSwiping)
+
+        if (Input.GetMouseButtonUp(0) && isSwiping && !shotFired)
         {
-            shotSlider.TriggerShot();
-            isSwiping = false;
+            FireShot();
         }
     }
 
+    private void FireShot()
+    {
+        float finalValue = powerSlider.value;
+        ShotType result = shotSlider.GetShotTypeFromValue(finalValue);
+        shotManager.StartShot(result);
+
+        shotFired = true;
+        isSwiping = false;
+        powerSlider.value = 0;
+    }
 }

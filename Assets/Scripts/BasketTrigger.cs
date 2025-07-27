@@ -5,6 +5,8 @@ using TMPro;
 public class BasketTrigger : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private BackboardBonusManager backboardBonusManager;
+    [SerializeField] private FloatingTextManager floatingTextManager;
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Ball"))
@@ -24,18 +26,31 @@ public class BasketTrigger : MonoBehaviour
         {
             case ShotType.Perfect:
                 GameManager.Instance.AddScore(3);
+                floatingTextManager.ShowMessage("Perfect Shot!\n+3 Points!", Color.green);
                 UpdateScoreUI();
                 break;
             case ShotType.Rim:
                 GameManager.Instance.AddScore(2);
+                floatingTextManager.ShowMessage("+2 Points!", Color.grey);
                 UpdateScoreUI();
                 break;
             case ShotType.Backboard:
-                GameManager.Instance.AddScore(2); 
-                UpdateScoreUI();
-                break;
+                int bonus = backboardBonusManager.GetBonusPoints();
+                if (bonus > 0)
+                {
+                    GameManager.Instance.AddScore(bonus);
+                    floatingTextManager.ShowMessage($"Backboard Bonus! +{bonus} Points!", Color.magenta);
+                    UpdateScoreUI();
+                }
+                else
+                {
+                    GameManager.Instance.AddScore(2);
+                    floatingTextManager.ShowMessage("+2 Points!", Color.white);
+                    UpdateScoreUI();
+                }
+            break;
         }
-
+        
         status.hasScored = true;
     }
     
