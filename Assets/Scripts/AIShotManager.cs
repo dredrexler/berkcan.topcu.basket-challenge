@@ -22,7 +22,10 @@ public class AIShotManager : MonoBehaviour
 
     public void StartShot(ShotType type)
     {
-        if (shotInProgress) return;
+        if (GameManager.Instance.IsChangingPosition)
+            return;
+        if (shotInProgress)
+            return;
 
         UpdatePositionToMatchPlayer(); // <-- Move AI into place before shooting
 
@@ -54,7 +57,7 @@ public class AIShotManager : MonoBehaviour
         }
 
         bonusManager.TrySpawnBonus();
-        bonusManager.RegisterShot();
+        //bonusManager.RegisterShot();
 
         status.hitGround = false;
         status.hasScored = false;

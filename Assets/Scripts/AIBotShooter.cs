@@ -26,7 +26,37 @@ public class AIBotShooter : MonoBehaviour
 
     private void Start()
     {
+        ApplyDifficultySettings();
         StartCoroutine(ShootingLoop());
+    }
+
+    private void ApplyDifficultySettings()
+    {
+        AIDifficulty difficulty = GameManager.Instance.SelectedDifficulty;
+
+        switch (difficulty)
+        {
+            case AIDifficulty.Easy:
+                perfectShotChance = 0.1f;
+                backboardShotChance = 0.2f;
+                shootDelay = 5f;
+                break;
+            case AIDifficulty.Medium:
+                perfectShotChance = 0.3f;
+                backboardShotChance = 0.4f;
+                shootDelay = 3.5f;
+                break;
+            case AIDifficulty.Hard:
+                perfectShotChance = 0.5f;
+                backboardShotChance = 0.3f;
+                shootDelay = 2.5f;
+                break;
+            case AIDifficulty.Impossible:
+                perfectShotChance = 0.8f;
+                backboardShotChance = 0.15f;
+                shootDelay = 1.2f;
+                break;
+        }
     }
 
     private IEnumerator ShootingLoop()

@@ -18,7 +18,7 @@ public class GameplayController : MonoBehaviour
         // Start a fresh run every time we enter Gameplay
         GameManager.Instance.ResetRun();
         UpdateScoreUI();
-
+        GameManager.Instance.StartTimer();
         // Hook test buttons
         addTwoPointsButton.onClick.AddListener(() => AddPoints(2));
         finishRoundButton.onClick.AddListener(FinishRound);

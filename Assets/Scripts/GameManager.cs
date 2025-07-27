@@ -1,18 +1,28 @@
 using UnityEngine;
-
-
-// Lives across scenes and keeps your session data (score, coins).
-
+using UnityEngine.SceneManagement;
+public enum GameResult
+{
+    None,
+    Win,
+    Lose,
+    Draw
+}
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    public int TotalScore { get; private set; }
-    public int Coins { get; private set; }
+    public float GameDuration = 60f; // Default duration in seconds
+    public float TimeRemaining { get; private set; }
+    public bool IsTimerRunning { get; private set; }
 
+    public int TotalScore { get; private set; } // Player score
+    public int AIScore { get; private set; }    // AI score
+    public int Coins { get; private set; }
+    public GameResult Result { get; private set; } = GameResult.None;
+    public AIDifficulty SelectedDifficulty { get; private set; } = AIDifficulty.Easy;
+    public bool IsChangingPosition { get; private set; }
     private void Awake()
     {
-        // Enforce a single instance that survives scene loads
         if (Instance != null)
         {
             Destroy(gameObject);
@@ -21,23 +31,77 @@ public class GameManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
+    public void SetPositionLock(bool state)
+    {
+        IsChangingPosition = state;
+    }
 
-    // Reset per-run data (called when starting a new gameplay session).
+    public void StartTimer()
+    {
+        TimeRemaining = GameDuration;
+        IsTimerRunning = true;
+    }
+
+    public void StopTimer()
+    {
+        IsTimerRunning = false;
+    }
+
+    private void Update()
+    {
+        if (IsTimerRunning)
+        {
+            TimeRemaining -= Time.deltaTime;
+            if (TimeRemaining <= 0f)
+            {
+                TimeRemaining = 0f;
+                IsTimerRunning = false;
+                EndGame();
+            }
+        }
+    }
+
+    private void EndGame()
+    {
+        Debug.Log("Game Over - Timer ended!");
+
+        // Determine win/lose/draw
+        if (TotalScore > AIScore)
+            Result = GameResult.Win;
+        else if (TotalScore < AIScore)
+            Result = GameResult.Lose;
+        else
+            Result = GameResult.Draw;
+        int coinsToGive = TotalScore;
+        AddCoins(coinsToGive);
+        SceneManager.LoadScene("Reward");
+    }
+
     public void ResetRun()
     {
         TotalScore = 0;
+        AIScore = 0;
         Coins = 0;
+        TimeRemaining = GameDuration;
     }
 
-    // Add points during gameplay.
     public void AddScore(int points)
     {
         TotalScore += points;
     }
 
-    // Add coins during gameplay.
+    public void AddAIScore(int aiPoints)
+    {
+        AIScore += aiPoints;
+    }
+
     public void AddCoins(int amount)
     {
         Coins += amount;
+    }
+
+    public void SetDifficulty(AIDifficulty difficulty)
+    {
+        SelectedDifficulty = difficulty;
     }
 }

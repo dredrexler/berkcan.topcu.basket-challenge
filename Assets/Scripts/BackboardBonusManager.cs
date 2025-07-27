@@ -73,7 +73,7 @@ public class BackboardBonusManager : MonoBehaviour
     {
         if (currentBonus == BackboardBonusType.None)
             return 0;
-        remainingShots--;
+        
         if (remainingShots <= 0)
             ClearBonus();
         return GetRawBonusPoints();

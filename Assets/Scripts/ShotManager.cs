@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using Unity.VisualScripting;
-
+using UnityEngine.UI;
 public class ShotManager : MonoBehaviour
 {
     [SerializeField] private BallShooter ballShooter;
@@ -9,18 +9,18 @@ public class ShotManager : MonoBehaviour
     [SerializeField] private ShotPositionManager positionManager;
 
     [SerializeField] private bool shotInProgress = false;
-    
+
     [SerializeField] private CameraController cameraController;
 
     [SerializeField] private BackboardBonusManager backboardBonusManager;
-
-
+    [SerializeField] private Slider shotSlider;
     void Start()
     {
         SetInitialPosition();
+        GameManager.Instance.SetPositionLock(false);
     }
 
-        private void SetInitialPosition()
+    private void SetInitialPosition()
     {
         int index;
         Vector3 pos = positionManager.GetRandomPosition(out index);
@@ -45,6 +45,17 @@ public class ShotManager : MonoBehaviour
     }
     public void StartShot(ShotType type)
     {
+        if (GameManager.Instance.IsChangingPosition)
+        {
+            Debug.LogWarning("Can't shoot: changing position");
+            return;
+        }
+        if (!shotSlider.interactable)
+        {
+            Debug.LogWarning("Can't shoot: UI slider not interactable");
+            return;
+        }
+
         Debug.Log("Trying to start shot");
         BallStatus status = ballShooter.GetComponent<BallStatus>();
         status.hitGround = false;
@@ -52,10 +63,14 @@ public class ShotManager : MonoBehaviour
         cameraController.ZoomToHoop();
         if (shotInProgress)
         {
-
+            Debug.LogWarning("Can't shoot: shotInProgress still true");
             Debug.Log("Shot in progress, skipping");
             return;
         }
+        Debug.Log("All clear – actually starting shot");
+        // Start lock right when shot begins
+        GameManager.Instance.SetPositionLock(true);
+        if (shotSlider != null) shotSlider.interactable = false;
         Debug.Log("Starting new shot");
 
         shotInProgress = true;
@@ -70,50 +85,54 @@ public class ShotManager : MonoBehaviour
         // Wait until the ball hits the ground
         yield return new WaitUntil(() => status.hitGround);
         Debug.Log("Ball hit ground - continuing shot cycle");
-        yield return new WaitForSeconds(1f); // wait a moment after it hits
-        
-            int newIndex;
-            Vector3 newPos = positionManager.GetRandomPosition(out newIndex);
-            ballShooter.currentPositionIndex = newIndex; // update the current position index
-            shooter.position = newPos;
-            Vector3 adjustedPos = newPos;
-            adjustedPos.y -= 2.1f;
-            //adjustedPos.x += 2f; // adjust z to avoid clipping through the ground
-            shooter.position = adjustedPos;
-            shooter.LookAt(ballShooter.target);
-            // Get current rotation after LookAt
-            Vector3 euler = shooter.rotation.eulerAngles;
 
-            // Apply desired offsets
-            euler.x += 28f; // tilt up slightly
-            euler.y -= 180f; // turn around
-            euler.z += 180f; // flip
+        yield return new WaitForSeconds(2f); // Delay before unlocking
+        GameManager.Instance.SetPositionLock(false);
+        if (shotSlider != null) shotSlider.interactable = true;
 
-            // Apply the new rotation
-            shooter.rotation = Quaternion.Euler(euler);
-            ballShooter.MoveToPosition(newPos);
-            ballShooter.transform.LookAt(ballShooter.target);
-            
-        
         if (!status.hasScored)
         {
             Debug.Log("Missed shot, retrying at the same position");
 
             // Reset ball to the shooter's position
             Vector3 resetPos = shooter.position;
-            resetPos.y += 2.1f; // reverse the offset you applied earlier
+            resetPos.y += 2.1f;
             ballShooter.MoveToPosition(resetPos);
-
-            // Ensure the ball is facing the hoop again
             ballShooter.transform.LookAt(ballShooter.target);
         }
-        
-        Debug.Log("Shot completed, moving to new position");
+        else
+        {
+            Debug.Log("Shot scored, moving to new position");
+
+            int newIndex;
+            Vector3 newPos = positionManager.GetRandomPosition(out newIndex);
+            ballShooter.currentPositionIndex = newIndex;
+
+            Vector3 adjustedPos = newPos;
+            adjustedPos.y -= 2.1f;
+            shooter.position = adjustedPos;
+            shooter.LookAt(ballShooter.target);
+
+            Vector3 euler = shooter.rotation.eulerAngles;
+            euler.x += 28f;
+            euler.y -= 180f;
+            euler.z += 180f;
+            shooter.rotation = Quaternion.Euler(euler);
+
+            ballShooter.MoveToPosition(newPos);
+            ballShooter.transform.LookAt(ballShooter.target);
+
+            
+
+        }
+
         backboardBonusManager.TrySpawnBonus();
         backboardBonusManager.RegisterShot();
+
         status.hitGround = false;
         status.hasScored = false;
         shotInProgress = false;
+
         cameraController.ResetToPlayerView();
     }
 
@@ -145,6 +164,11 @@ public class ShotManager : MonoBehaviour
     public void ShootBackboardMiss()
     {
         StartShot(ShotType.BackboardMiss);
+    }
+    
+    public bool IsShotInProgress()
+    {
+        return shotInProgress;
     }
 
 }
