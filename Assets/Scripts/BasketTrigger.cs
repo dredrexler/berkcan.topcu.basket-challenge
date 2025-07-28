@@ -4,58 +4,115 @@ using TMPro;
 
 public class BasketTrigger : MonoBehaviour
 {
+    [Header("UI")]
     [SerializeField] private TextMeshProUGUI scoreText;
-    [SerializeField] private BackboardBonusManager backboardBonusManager;
     [SerializeField] private FloatingTextManager floatingTextManager;
+    [SerializeField] private BackboardBonusManager backboardBonusManager;
+    [SerializeField] private FireballManager fireballManager;
+
+    [Header("VFX (Scene Instances)")]
+    [SerializeField] private Transform vfxSpawnPoint;
+    [SerializeField] private ParticleSystem perfectVFXPrefab;
+    [SerializeField] private ParticleSystem rimVFXPrefab;
+    [SerializeField] private ParticleSystem backboardVFXPrefab;
+
+    private ParticleSystem perfectVFX;
+    private ParticleSystem rimVFX;
+    private ParticleSystem backboardVFX;
+
+    void Awake()
+    {
+        // instantiate & parent once
+        perfectVFX   = Instantiate(perfectVFXPrefab,   vfxSpawnPoint.position, perfectVFXPrefab.transform.rotation,   vfxSpawnPoint);
+        rimVFX       = Instantiate(rimVFXPrefab,       vfxSpawnPoint.position, rimVFXPrefab.transform.rotation,       vfxSpawnPoint);
+        backboardVFX = Instantiate(backboardVFXPrefab, vfxSpawnPoint.position, backboardVFXPrefab.transform.rotation, vfxSpawnPoint);
+
+        // prevent auto‑play/destruct
+        perfectVFX.Stop(true,  ParticleSystemStopBehavior.StopEmittingAndClear);
+        rimVFX.Stop(true,      ParticleSystemStopBehavior.StopEmittingAndClear);
+        backboardVFX.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);
+    }
+
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.CompareTag("Ball"))
-            return;
-
-        BallStatus status = other.GetComponent<BallStatus>();
-        if (status == null)
-            return;
-
-        if (status.hasScored)
-            return; // prevent double-scoring
+        if (!other.CompareTag("Ball")) return;
+        var status = other.GetComponent<BallStatus>();
+        if (status == null || status.hasScored) return;
 
         Debug.Log("Ball entered the basket!");
 
-        // Add score based on shot type
+        // 1) Determine base points, title text, color & VFX
+        int    basePoints = 0;
+        string title      = "";
+        Color  msgColor   = Color.white;
+        ParticleSystem toPlay = null;
+
         switch (status.shotType)
         {
             case ShotType.Perfect:
-                GameManager.Instance.AddScore(3);
-                floatingTextManager.ShowMessage("Perfect Shot!\n+3 Points!", Color.green);
-                UpdateScoreUI();
+                basePoints = 3;
+                title      = "Perfect Shot!";
+                msgColor   = Color.green;
+                toPlay     = perfectVFX;
                 break;
+
             case ShotType.Rim:
-                GameManager.Instance.AddScore(2);
-                floatingTextManager.ShowMessage("+2 Points!", Color.grey);
-                UpdateScoreUI();
+                basePoints = 2;
+                title      = "Rim Shot!";
+                msgColor   = Color.grey;
+                toPlay     = rimVFX;
                 break;
+
             case ShotType.Backboard:
                 int bonus = backboardBonusManager.GetBonusPoints();
                 if (bonus > 0)
                 {
-                    GameManager.Instance.AddScore(bonus);
-                    floatingTextManager.ShowMessage($"Backboard Bonus! +{bonus} Points!", Color.magenta);
-                    UpdateScoreUI();
+                    basePoints = bonus;
+                    title      = "Backboard Bonus!";
+                    msgColor   = Color.magenta;  // purple
+                    toPlay     = backboardVFX;
                 }
                 else
                 {
-                    GameManager.Instance.AddScore(2);
-                    floatingTextManager.ShowMessage("+2 Points!", Color.white);
-                    UpdateScoreUI();
+                    basePoints = 2;
+                    title      = "Backboard Shot!";
+                    msgColor   = Color.white;
+                    toPlay     = rimVFX;
                 }
-            break;
+                break;
         }
-        
+
+        // 2) Apply fireball multiplier
+        int totalPoints = fireballManager.ApplyMultiplier(basePoints);
+
+        // 3) Award score
+        GameManager.Instance.AddScore(totalPoints);
+
+        // 4) Show floating text with actual (possibly doubled) points
+        string message = $"{title}\n+{totalPoints} Points!";
+        Color finalColor = fireballManager.IsActive ? Color.red : msgColor;
+        floatingTextManager.ShowMessage(message, finalColor);
+
+        // 5) Play VFX & advance fireball progress
+        PlayVFX(toPlay);
+        fireballManager.OnMake();
+
+        // 6) Update UI and mark scored
+        UpdateScoreUI();
         status.hasScored = true;
     }
-    
+
+    private void PlayVFX(ParticleSystem fx)
+    {
+        if (fx == null) return;
+        fx.transform.position = vfxSpawnPoint.position;
+        fx.transform.rotation = Quaternion.Euler(-90f, 0f, 0f);
+        fx.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        fx.Play();
+    }
+
     private void UpdateScoreUI()
     {
-        scoreText.text = $"Score: {GameManager.Instance.TotalScore}";
+        scoreText.text = $"{GameManager.Instance.TotalScore}";
     }
 }

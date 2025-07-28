@@ -39,12 +39,12 @@ public class AIBotShooter : MonoBehaviour
             case AIDifficulty.Easy:
                 perfectShotChance = 0.1f;
                 backboardShotChance = 0.2f;
-                shootDelay = 5f;
+                shootDelay = 4f;
                 break;
             case AIDifficulty.Medium:
                 perfectShotChance = 0.3f;
                 backboardShotChance = 0.4f;
-                shootDelay = 3.5f;
+                shootDelay = 3.0f;
                 break;
             case AIDifficulty.Hard:
                 perfectShotChance = 0.5f;
@@ -61,7 +61,7 @@ public class AIBotShooter : MonoBehaviour
 
     private IEnumerator ShootingLoop()
     {
-        yield return new WaitForSeconds(1f);
+        //yield return new WaitForSeconds(1f);
         while (true)
         {
             yield return new WaitUntil(() => aiShotManager.CanShoot());
@@ -80,7 +80,7 @@ public class AIBotShooter : MonoBehaviour
         int currentIndex = aiBallShooter.currentPositionIndex;
         Vector3 basePosition = aiShotManager.GetShotPosition(currentIndex);
 
-        Vector3 newPosition = basePosition + new Vector3(1f, 0f, 0f); // Side of player
+        Vector3 newPosition = basePosition + new Vector3(1f, 0f, 0.5f); // Side of player
         newPosition.y -= 2.1f;
         botRootTransform.position = newPosition;
 

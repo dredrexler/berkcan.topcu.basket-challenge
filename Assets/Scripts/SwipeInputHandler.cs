@@ -17,7 +17,7 @@ public class SwipeInputHandler : MonoBehaviour
     private bool shotFired;
 
     private const float maxSwipeDuration = 0.75f;
-    private const float swipeDistanceForFull = 500f;
+    private const float swipeDistanceForFull = 1000f;
 
     void OnEnable()
     {

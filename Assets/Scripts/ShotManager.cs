@@ -14,6 +14,7 @@ public class ShotManager : MonoBehaviour
 
     [SerializeField] private BackboardBonusManager backboardBonusManager;
     [SerializeField] private Slider shotSlider;
+    [SerializeField] private FireballManager fireballManager;
     void Start()
     {
         SetInitialPosition();
@@ -99,6 +100,7 @@ public class ShotManager : MonoBehaviour
             resetPos.y += 2.1f;
             ballShooter.MoveToPosition(resetPos);
             ballShooter.transform.LookAt(ballShooter.target);
+            fireballManager.OnMiss();
         }
         else
         {
@@ -122,7 +124,7 @@ public class ShotManager : MonoBehaviour
             ballShooter.MoveToPosition(newPos);
             ballShooter.transform.LookAt(ballShooter.target);
 
-            
+
 
         }
 

@@ -50,6 +50,7 @@ public class AIShotManager : MonoBehaviour
 
         if (!status.hasScored)
         {
+            FindObjectOfType<AIBasketTrigger>().OnAIMiss();
             Vector3 resetPos = aiShooterTransform.position;
             resetPos.y += 2.1f;
             aiBallShooter.MoveToPosition(resetPos);
@@ -81,7 +82,7 @@ public class AIShotManager : MonoBehaviour
         aiBallShooter.currentPositionIndex = index;
 
         // Position AI bot beside the player
-        Vector3 botPosition = pos + new Vector3(1f, 0f, 0f);
+        Vector3 botPosition = pos + new Vector3(0.90f, 0f, 0f);
         botPosition.y -= 2.1f;
         aiShooterTransform.position = botPosition;
         aiShooterTransform.LookAt(aiBallShooter.target);

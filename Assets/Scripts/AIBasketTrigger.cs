@@ -1,57 +1,69 @@
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 
 public class AIBasketTrigger : MonoBehaviour
 {
+    [Header("UI")]
     [SerializeField] private TextMeshProUGUI aiScoreText;
+
+    [Header("Scoring Helpers")]
     [SerializeField] private BackboardBonusManager backboardBonusManager;
-    [SerializeField] private FloatingTextManager floatingTextManager;
+    [SerializeField] private AIFireballManager fireballManager;
+
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.CompareTag("AIBall"))
-            return;
+        if (!other.CompareTag("AIBall")) return;
 
-        BallStatus status = other.GetComponent<BallStatus>();
-        if (status == null)
-            return;
-
-        if (status.hasScored)
-            return; // prevent double-scoring
+        var status = other.GetComponent<BallStatus>();
+        if (status == null || status.hasScored) return;
 
         Debug.Log("AI Ball entered the basket!");
 
-        // Add score based on shot type
+        // Determine base points
+        int basePoints;
         switch (status.shotType)
         {
             case ShotType.Perfect:
-                GameManager.Instance.AddAIScore(3);
-                UpdateScoreUI();
+                basePoints = 3;
                 break;
+
             case ShotType.Rim:
-                GameManager.Instance.AddAIScore(2);
-                UpdateScoreUI();
+                basePoints = 2;
                 break;
+
             case ShotType.Backboard:
                 int bonus = backboardBonusManager.GetBonusPoints();
-                if (bonus > 0)
-                {
-                    GameManager.Instance.AddAIScore(bonus);
-                    UpdateScoreUI();
-                }
-                else
-                {
-                    GameManager.Instance.AddAIScore(2);
-                    UpdateScoreUI();
-                }
-            break;
+                basePoints = bonus > 0 ? bonus : 2;
+                break;
+
+            default:
+                basePoints = 0;
+                break;
         }
-        
+
+        // Apply fireball multiplier
+        int totalPoints = fireballManager.ApplyMultiplier(basePoints);
+
+        // Award AI score
+        GameManager.Instance.AddAIScore(totalPoints);
+
+        // Advance the fireball streak
+        fireballManager.OnMake();
+
+        // Update AI score UI
+        UpdateScoreUI();
+
         status.hasScored = true;
     }
-    
+
+
+    public void OnAIMiss()
+    {
+        fireballManager.OnMiss();
+    }
+
     private void UpdateScoreUI()
     {
-        aiScoreText.text = $"AI: {GameManager.Instance.AIScore}";
+        aiScoreText.text = $"{GameManager.Instance.AIScore}";
     }
 }

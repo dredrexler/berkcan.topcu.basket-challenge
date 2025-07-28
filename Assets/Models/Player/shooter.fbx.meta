@@ -3,7 +3,22 @@ guid: 1ce9781018518f84a860b0258bba552b
 ModelImporter:
   serializedVersion: 21300
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 02 - Default
+    second: {fileID: 2100000, guid: ebe448edbf4648847b18ba48d2c4617c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 03 - Default
+    second: {fileID: 2100000, guid: 9744f6cd32dbdde48bdeb0f93f35a0d7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 21511_Basketball_Player_Shooting_v1_NEW__21511_Basketball_Player_Shooting_v121511_Basketball_Player_Shooting
+    second: {fileID: 2100000, guid: 7aa068bc7065ae54e845690dd7b6f7bd, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
