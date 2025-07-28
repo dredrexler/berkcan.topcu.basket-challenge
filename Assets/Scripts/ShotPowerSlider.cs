@@ -64,14 +64,14 @@ public class ShotPowerSlider : MonoBehaviour
         wasInProgressLastFrame = inProgress;
     }
 
-    /// <summary>Called by SwipeInputHandler on MouseDown</summary>
+    
     public void StartDrag()
     {
         isDragging = true;
         Debug.Log("[ShotPowerSlider] StartDrag()");
     }
 
-    /// <summary>Called by SwipeInputHandler on FireShot or by AI via TriggerShotAt()</summary>
+    
     public void StopDrag()
     {
         // no early return: always fire
@@ -81,7 +81,7 @@ public class ShotPowerSlider : MonoBehaviour
         EvaluateShot(finalValue);
     }
 
-    /// <summary>For your AI: directly fire at a given fill %</summary>
+    
     public void TriggerShotAt(float value)
     {
         finalValue = Mathf.Clamp01(value);
@@ -117,12 +117,16 @@ public class ShotPowerSlider : MonoBehaviour
 
     private void SetZoneIndicator(RectTransform indicator, ShotZone zone)
     {
-        float h = sliderAreaRect.rect.height;
-        float height = (zone.maxValue - zone.minValue) * h;
-        float bottom = zone.minValue * h;
-        if (zone.shotType == ShotType.Backboard)
-            bottom -= 0.04f * h;
-        indicator.sizeDelta = new Vector2(indicator.sizeDelta.x, height);
-        indicator.anchoredPosition = new Vector2(indicator.anchoredPosition.x, bottom);
+        // zone.minValue/maxValue are in 0..1
+        indicator.SetParent(sliderAreaRect, false);
+
+        // stretch full width, but only span the vertical slice [min,max]
+        indicator.anchorMin = new Vector2(0f, zone.minValue);
+        indicator.anchorMax = new Vector2(1f, zone.maxValue);
+
+        // zero‐out any offsets so corners snap exactly to the anchors
+        indicator.offsetMin = Vector2.zero;
+        indicator.offsetMax = Vector2.zero;
     }
+
 }

@@ -1,6 +1,8 @@
 // SwipeInputHandler.cs
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 public class SwipeInputHandler : MonoBehaviour
 {
@@ -13,8 +15,9 @@ public class SwipeInputHandler : MonoBehaviour
     private float swipeTimer;
     private bool isSwiping;
     private bool shotFired;
+
     private const float maxSwipeDuration = 0.75f;
-    private const float swipeDistanceForFull = 500f; // adjust if you like
+    private const float swipeDistanceForFull = 500f;
 
     void OnEnable()
     {
@@ -28,62 +31,70 @@ public class SwipeInputHandler : MonoBehaviour
         if (shotManager.IsShotInProgress())
             return;
 
-        // --- 1) Mobile touch input ---
+        #if UNITY_ANDROID || UNITY_IOS
+        // Touch input
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
             switch (touch.phase)
             {
                 case TouchPhase.Began:
-                    BeginSwipe(touch.position);
+                    if (!IsPointerOverUIButton(touch.position))
+                        BeginSwipe(touch.position);
                     break;
 
                 case TouchPhase.Moved:
                 case TouchPhase.Stationary:
-                    ContinueSwipe(touch.position, Time.deltaTime);
+                    if (isSwiping && !shotFired)
+                        ContinueSwipe(touch.position, Time.deltaTime);
                     break;
 
                 case TouchPhase.Ended:
                 case TouchPhase.Canceled:
-                    EndSwipe();
+                    if (isSwiping && !shotFired)
+                        EndSwipe();
                     break;
             }
         }
-        // --- 2) Mouse fallback ---
-        else
+        #endif
+
+        // Mouse input 
+        if (Input.GetMouseButtonDown(0))
         {
-            if (Input.GetMouseButtonDown(0))
-                BeginSwipe(Input.mousePosition);
+            Vector2 mousePos = Input.mousePosition;
+            if (!IsPointerOverUIButton(mousePos))
+                BeginSwipe(mousePos);
+        }
 
-            if (isSwiping && !shotFired)
-                ContinueSwipe((Vector2)Input.mousePosition, Time.deltaTime);
+        if (isSwiping && !shotFired)
+        {
+            ContinueSwipe(Input.mousePosition, Time.deltaTime);
+        }
 
-            if (Input.GetMouseButtonUp(0) && isSwiping && !shotFired)
-                EndSwipe();
+        if (Input.GetMouseButtonUp(0) && isSwiping && !shotFired)
+        {
+            EndSwipe();
         }
     }
 
     private void BeginSwipe(Vector2 inputPos)
     {
-        startTouch   = inputPos;
-        swipeTimer   = 0f;
-        isSwiping    = true;
-        shotFired    = false;
+        startTouch = inputPos;
+        swipeTimer = 0f;
+        isSwiping = true;
+        shotFired = false;
         shotSlider.StartDrag();
     }
 
     private void ContinueSwipe(Vector2 currentPos, float deltaTime)
     {
         swipeTimer += deltaTime;
-
         float deltaY = currentPos.y - startTouch.y;
         float normalized = Mathf.Clamp01(deltaY / swipeDistanceForFull);
 
-        // only ever increase
         if (normalized > powerSlider.value)
             powerSlider.value = normalized;
 
-        // auto‑fire if held too long
         if (swipeTimer >= maxSwipeDuration)
             EndSwipe();
     }
@@ -93,5 +104,32 @@ public class SwipeInputHandler : MonoBehaviour
         shotSlider.StopDrag();
         shotFired = true;
         isSwiping = false;
+    }
+
+
+    /// Returns true if the given screen point is over any Button UI.
+
+    private bool IsPointerOverUIButton(Vector2 screenPosition)
+    {
+        if (EventSystem.current == null)
+            return false;
+
+        // Set up a PointerEventData with current pointer position
+        PointerEventData pointerData = new PointerEventData(EventSystem.current)
+        {
+            position = screenPosition
+        };
+
+        // Raycast into the UI
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointerData, results);
+
+        // Check if any hit object has a Button component
+        foreach (RaycastResult result in results)
+        {
+            if (result.gameObject.GetComponent<Button>() != null)
+                return true;
+        }
+        return false;
     }
 }
