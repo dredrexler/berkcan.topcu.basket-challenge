@@ -8,7 +8,7 @@ public class BackboardTrigger : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (!collision.collider.CompareTag("Ball")) return;
+        if (!collision.collider.CompareTag("Ball") || !collision.collider.CompareTag("AIBall")) return;
 
         BallStatus status = collision.collider.GetComponent<BallStatus>();
         if (status == null || status.shotType != ShotType.Backboard || status.hasScored) return;
@@ -23,7 +23,7 @@ public class BackboardTrigger : MonoBehaviour
         Vector3 displacement = end - start;
         Vector3 velocity = (displacement - 0.5f * gravity * timeToReach * timeToReach) / timeToReach;
 
-        // 🔧 Dampen the vertical Y velocity for more natural arc
+        // Dampen the vertical Y velocity for more natural arc
         velocity.y *= verticalDamping;
 
         rb.velocity = velocity;

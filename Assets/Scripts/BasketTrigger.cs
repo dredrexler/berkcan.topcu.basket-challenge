@@ -16,6 +16,13 @@ public class BasketTrigger : MonoBehaviour
     [SerializeField] private ParticleSystem rimVFXPrefab;
     [SerializeField] private ParticleSystem backboardVFXPrefab;
 
+    [Header("SFX")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip perfectSfx;
+    [SerializeField] private AudioClip rimSfx;
+    [SerializeField] private AudioClip backboardSfx;
+    [SerializeField] private AudioClip backboardBonusSfx;
+
     private ParticleSystem perfectVFX;
     private ParticleSystem rimVFX;
     private ParticleSystem backboardVFX;
@@ -35,6 +42,7 @@ public class BasketTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (!GameManager.Instance.GameStarted) return;
         if (!other.CompareTag("Ball")) return;
         var status = other.GetComponent<BallStatus>();
         if (status == null || status.hasScored) return;
@@ -52,6 +60,7 @@ public class BasketTrigger : MonoBehaviour
             case ShotType.Perfect:
                 basePoints = 3;
                 title      = "Perfect Shot!";
+                audioSource?.PlayOneShot(perfectSfx);
                 msgColor   = Color.green;
                 toPlay     = perfectVFX;
                 break;
@@ -59,6 +68,7 @@ public class BasketTrigger : MonoBehaviour
             case ShotType.Rim:
                 basePoints = 2;
                 title      = "Rim Shot!";
+                audioSource?.PlayOneShot(rimSfx);
                 msgColor   = Color.grey;
                 toPlay     = rimVFX;
                 break;
@@ -69,6 +79,7 @@ public class BasketTrigger : MonoBehaviour
                 {
                     basePoints = bonus;
                     title      = "Backboard Bonus!";
+                    audioSource?.PlayOneShot(backboardBonusSfx);
                     msgColor   = Color.magenta;  // purple
                     toPlay     = backboardVFX;
                 }
@@ -76,6 +87,7 @@ public class BasketTrigger : MonoBehaviour
                 {
                     basePoints = 2;
                     title      = "Backboard Shot!";
+                    audioSource?.PlayOneShot(backboardSfx);
                     msgColor   = Color.white;
                     toPlay     = rimVFX;
                 }

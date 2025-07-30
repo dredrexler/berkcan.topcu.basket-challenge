@@ -16,6 +16,7 @@ public class ShotProfile
     public ShotType shotType;
     public int positionIndex;
     public Vector3 offset;
+    
 }
 
 // Calculates and applies a velocity to shoot the ball toward a target.
@@ -28,6 +29,8 @@ public class BallShooter : MonoBehaviour
 
     public List<ShotProfile> shotProfiles = new List<ShotProfile>();
     public int currentPositionIndex = 0;
+    public Transform ballTransform;
+    public Transform handTransform;
 
 
     private void Start()
@@ -117,6 +120,20 @@ public class BallShooter : MonoBehaviour
         rb.isKinematic = false;
         rb.useGravity = true;
         rb.velocity = velocity;
+    }
+
+    // Call this to snap the ball into the hand
+    public void AttachBallToHand()
+    {
+        ballTransform.SetParent(handTransform, worldPositionStays: false);
+        ballTransform.localPosition = Vector3.zero;
+        ballTransform.localRotation = Quaternion.identity;
+    }
+    
+    // Call this to drop it back into world space
+    public void DetachBallFromHand()
+    {
+        ballTransform.SetParent(null, worldPositionStays: true);
     }
 
 }

@@ -9,11 +9,15 @@ public class AIBallShooter : MonoBehaviour
 
     public List<ShotProfile> shotProfiles = new List<ShotProfile>();
     public int currentPositionIndex = 0;
+    public Transform AIballTransform;
+    public Transform AIhandTransform;
+
 
     private void Start()
     {
         if (rb == null)
             rb = GetComponent<Rigidbody>();
+
     }
 
     public void MoveToPosition(Vector3 newPosition)
@@ -78,5 +82,19 @@ public class AIBallShooter : MonoBehaviour
         }
 
         return Vector3.zero;
+    }
+    
+    // Call this to snap the ball into the hand
+    public void AttachBallToHand()
+    {
+        AIballTransform.SetParent(AIhandTransform, worldPositionStays: false);
+        AIballTransform.localPosition = Vector3.zero;
+        AIballTransform.localRotation = Quaternion.identity;
+    }
+    
+    // Call this to drop it back into world space
+    public void DetachBallFromHand()
+    {
+        AIballTransform.SetParent(null, worldPositionStays: true);
     }
 }

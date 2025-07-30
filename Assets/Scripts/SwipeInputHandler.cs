@@ -28,10 +28,11 @@ public class SwipeInputHandler : MonoBehaviour
 
     void Update()
     {
+        if (!GameManager.Instance.GameStarted) return;
         if (shotManager.IsShotInProgress())
             return;
 
-        #if UNITY_ANDROID || UNITY_IOS
+#if UNITY_ANDROID || UNITY_IOS
         // Touch input
         if (Input.touchCount > 0)
         {
@@ -39,7 +40,7 @@ public class SwipeInputHandler : MonoBehaviour
             switch (touch.phase)
             {
                 case TouchPhase.Began:
-                    if (!IsPointerOverUIButton(touch.position))
+                    if (!IsPointerOverUIButton(touch.position) && !IsPointerOverUIDropdown(touch.position))
                         BeginSwipe(touch.position);
                     break;
 
@@ -56,13 +57,13 @@ public class SwipeInputHandler : MonoBehaviour
                     break;
             }
         }
-        #endif
+#endif
 
         // Mouse input 
         if (Input.GetMouseButtonDown(0))
         {
             Vector2 mousePos = Input.mousePosition;
-            if (!IsPointerOverUIButton(mousePos))
+            if (!IsPointerOverUIButton(mousePos) && !IsPointerOverUIDropdown(mousePos))
                 BeginSwipe(mousePos);
         }
 
@@ -128,6 +129,30 @@ public class SwipeInputHandler : MonoBehaviour
         foreach (RaycastResult result in results)
         {
             if (result.gameObject.GetComponent<Button>() != null)
+                return true;
+        }
+        return false;
+    }
+    
+    private bool IsPointerOverUIDropdown(Vector2 screenPosition)
+    {
+        if (EventSystem.current == null)
+            return false;
+
+        // Set up a PointerEventData with current pointer position
+        PointerEventData pointerData = new PointerEventData(EventSystem.current)
+        {
+            position = screenPosition
+        };
+
+        // Raycast into the UI
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointerData, results);
+
+        // Check if any hit object has a Button component
+        foreach (RaycastResult result in results)
+        {
+            if (result.gameObject.GetComponent<Dropdown>() != null)
                 return true;
         }
         return false;

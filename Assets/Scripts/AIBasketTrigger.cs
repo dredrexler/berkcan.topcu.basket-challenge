@@ -12,6 +12,7 @@ public class AIBasketTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (!GameManager.Instance.GameStarted) return;
         if (!other.CompareTag("AIBall")) return;
 
         var status = other.GetComponent<BallStatus>();

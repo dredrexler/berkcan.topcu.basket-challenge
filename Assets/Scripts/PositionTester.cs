@@ -22,9 +22,8 @@ public class PositionTester : MonoBehaviour
 
         shooter.LookAt(ballShooter.target);
         Vector3 euler = shooter.rotation.eulerAngles;
-        euler.x += 28f;
-        euler.y -= 180f;
-        euler.z += 180f;
+        euler.x += 20f;
+        
         shooter.rotation = Quaternion.Euler(euler);
 
         ballShooter.MoveToPosition(pos);

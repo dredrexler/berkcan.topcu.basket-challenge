@@ -1,102 +1,143 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
+using TMPro;
 
 public class AIShotManager : MonoBehaviour
 {
+    [Header("AI References")]
     [SerializeField] private AIBallShooter aiBallShooter;
     [SerializeField] private Transform aiShooterTransform;
     [SerializeField] private ShotPositionManager positionManager;
     [SerializeField] private BackboardBonusManager bonusManager;
-    [SerializeField] private Transform playerTransform;           // Player root
-    [SerializeField] private BallShooter playerBallShooter;       // To get currentPositionIndex from player
+    [SerializeField] private BallShooter playerBallShooter;
+    [SerializeField] private Animator animator;
+    [SerializeField] private AIDribbleBall aidribbleBall;
+    [SerializeField] private Button aiDebugShootButton;
+    [SerializeField] private TMP_Dropdown aiShotTypeDropdown;
 
     private bool shotInProgress = false;
+    private Vector3 pendingLaunchPos;
+    private Transform aiBallTransform;
+    private Vector3 aiBallOriginalScale;
+
+
+    private void Awake()
+    {
+        // Cache the actual ball transform and its original scale
+        aiBallTransform = aiBallShooter.AIballTransform;
+        aiBallOriginalScale = aiBallTransform.localScale;
+    }
 
     private void Start()
     {
+        // ensure only the AI shot fires
+        aiDebugShootButton.onClick.RemoveAllListeners();
+        aiDebugShootButton.onClick.AddListener(() =>
+        {
+            var shot = (ShotType)aiShotTypeDropdown.value;
+            StartShot(shot);
+        });
+
+        // initial position and dribble
         UpdatePositionToMatchPlayer();
+        pendingLaunchPos = aiBallTransform.position;
+
+        // attach ball to hand and reset scale
+        aiBallShooter.AttachBallToHand();
+        aiBallTransform.localScale = aiBallOriginalScale;
+        aidribbleBall?.StartDribble();
+        animator.SetBool("AIisBouncing", true);
     }
 
-    
+    public void DebugShootSelected()
+    {
+        // read the dropdown’s value, cast to your enum, then call the real StartShot:
+        var type = (ShotType)aiShotTypeDropdown.value;
+        StartShot(type);
+    }
 
+
+    /// Called by AIBotShooter's loop; detaches & shoots at once.
 
     public void StartShot(ShotType type)
     {
-        if (GameManager.Instance.IsChangingPosition)
+        if (!GameManager.Instance.GameStarted) return;
+        if (GameManager.Instance.IsChangingPosition || shotInProgress)
             return;
-        if (shotInProgress)
-            return;
-
-        UpdatePositionToMatchPlayer(); // <-- Move AI into place before shooting
 
         shotInProgress = true;
 
-        BallStatus status = aiBallShooter.GetComponent<BallStatus>();
+        // prepare shot: stop dribble & animation
+        animator.SetBool("AIisBouncing", false);
+        animator.SetTrigger("AIShoot");
+        aidribbleBall?.StopDribble();
+
+        // record where ball currently is (at hand)
+        pendingLaunchPos = aiBallTransform.position;
+
+        // detach ball and reset scale
+        aiBallShooter.DetachBallFromHand();
+        aiBallTransform.localScale = aiBallOriginalScale;
+
+        // snap to recorded launch pos
+        aiBallTransform.position = pendingLaunchPos;
+
+        // actually shoot
+        var status = aiBallShooter.GetComponent<BallStatus>();
         status.hitGround = false;
         status.hasScored = false;
-
         aiBallShooter.ShootWithOutcome(type);
+
         StartCoroutine(WaitForShotToComplete());
     }
 
     private IEnumerator WaitForShotToComplete()
     {
-        BallStatus status = aiBallShooter.GetComponent<BallStatus>();
-
+        var status = aiBallShooter.GetComponent<BallStatus>();
         yield return new WaitUntil(() => status.hitGround);
         yield return new WaitForSeconds(1f);
 
+        // notify miss if needed
+        if (!status.hasScored)
+            FindObjectOfType<AIBasketTrigger>()?.OnAIMiss();
+
+        // reposition and restart dribble
         UpdatePositionToMatchPlayer();
 
-        if (!status.hasScored)
-        {
-            FindObjectOfType<AIBasketTrigger>().OnAIMiss();
-            Vector3 resetPos = aiShooterTransform.position;
-            resetPos.y += 2.1f;
-            aiBallShooter.MoveToPosition(resetPos);
-            aiBallShooter.transform.LookAt(aiBallShooter.target);
-        }
+        // attach ball to hand and reset scale
+        aiBallShooter.AttachBallToHand();
+        aiBallTransform.localScale = aiBallOriginalScale;
+        aidribbleBall?.StartDribble();
+        animator.SetBool("AIisBouncing", true);
 
-        bonusManager.TrySpawnBonus();
-        //bonusManager.RegisterShot();
-
+        // reset state
         status.hitGround = false;
         status.hasScored = false;
         shotInProgress = false;
+
+        bonusManager.TrySpawnBonus();
     }
 
-    public bool CanShoot()
-    {
-        return !shotInProgress;
-    }
-
-    public Vector3 GetShotPosition(int index)
-    {
-        return positionManager.GetPositionByIndex(index);
-    }
+    public bool CanShoot() => !shotInProgress;
 
     private void UpdatePositionToMatchPlayer()
     {
-        int index = playerBallShooter.currentPositionIndex;
-        Vector3 pos = positionManager.GetPositionByIndex(index);
-        aiBallShooter.currentPositionIndex = index;
+        int idx = playerBallShooter.currentPositionIndex;
+        Vector3 basePos = positionManager.GetPositionByIndex(idx);
+        aiBallShooter.currentPositionIndex = idx;
 
-        // Position AI bot beside the player
-        Vector3 botPosition = pos + new Vector3(0.90f, 0f, 0f);
-        botPosition.y -= 2.1f;
-        aiShooterTransform.position = botPosition;
+        // position AI root next to player
+        Vector3 botPos = basePos + new Vector3(1f, -2.1f, 0.5f);
+        aiShooterTransform.position = botPos;
         aiShooterTransform.LookAt(aiBallShooter.target);
-        
-        Vector3 euler = aiShooterTransform.rotation.eulerAngles;
-        euler.x += 28f;
-        euler.y -= 180f;
-        euler.z += 180f;
-        aiShooterTransform.rotation = Quaternion.Euler(euler);
-        
-        // Match ball to same offset position
-        Vector3 ballSpawnPos = pos + new Vector3(1f, 0, 0f); // x offset + height
-        aiBallShooter.MoveToPosition(ballSpawnPos);
-        aiBallShooter.transform.LookAt(aiBallShooter.target);
-    }
+        var e = aiShooterTransform.rotation.eulerAngles;
+        e.x += 20f;
+        aiShooterTransform.rotation = Quaternion.Euler(e);
 
+        // move ball at hand height
+        Vector3 ballPos = botPos + new Vector3(0f, 2.1f, 0f);
+        aiBallTransform.position = ballPos;
+        aiBallTransform.rotation = aiBallShooter.AIhandTransform.rotation;
+    }
 }
