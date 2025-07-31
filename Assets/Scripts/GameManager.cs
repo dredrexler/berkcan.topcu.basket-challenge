@@ -41,6 +41,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] private AIShotManager aiShotManager;
     [SerializeField] private TMP_Dropdown aiShotTypeDropdown;
     [SerializeField] private Button aiDebugShootButton;
+
+    public bool IsClutchTimeEnabled = false;
+    public bool IsClutchTimeActive => IsClutchTimeEnabled && TimeRemaining <= 20f && IsTimerRunning;
+
+    public bool IsReplayEnabled = false;
+    public bool IsInReplay = false;
+
     void Start()
     {
         if (aiShotManager != null && aiShotTypeDropdown != null && aiDebugShootButton != null)
@@ -203,4 +210,6 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.LoadScene("FreezeMode");
     }
+
+
 }

@@ -15,15 +15,17 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private TMP_Dropdown difficultyDropdown;
     [Tooltip("Button to start Campaign Mode")]
     [SerializeField] private Button campaignButton;
-    [SerializeField] private Button freezemodeButton;
+
 
     [Header("Scene Names for Quick Play")]  
     [Tooltip("Scene names for each difficulty in the same order as difficultyDropdown options")]  
     [SerializeField] private string[] quickPlayScenes;
     [SerializeField] private DribbleBall dribbleBall;
+    [SerializeField] private Toggle clutchToggle;
+    [SerializeField] private Toggle replayToggle;
 
     // Predefined durations matching timeDropdown options
-    private readonly float[] durations = { 60f, 120f, 180f}; // 1m,2m,3m,10m
+    private readonly float[] durations = { 60f, 120f, 180f }; // 1m,2m,3m,10m
 
     void Start()
     {
@@ -36,10 +38,8 @@ public class MainMenuManager : MonoBehaviour
             GameManager.Instance.StartCampaign();
         });
 
-        freezemodeButton.onClick.AddListener(() =>
-        {
-            GameManager.Instance.StartFreezeGame();
-        });
+        clutchToggle.isOn = GameManager.Instance.IsClutchTimeEnabled;
+        replayToggle.isOn = GameManager.Instance.IsReplayEnabled;
     }
 
 
@@ -70,6 +70,14 @@ public class MainMenuManager : MonoBehaviour
             SceneManager.LoadScene(quickPlayScenes[diffIndex]);
         else
             Debug.LogError("QuickPlayScenes array out of range or not set up correctly.");
+
+        // 5) Set clutch time based on toggle
+        SetClutchTime();
+        GameManager.Instance.IsReplayEnabled = replayToggle.isOn;
+    }
+    private void SetClutchTime()
+    {
+        GameManager.Instance.IsClutchTimeEnabled = clutchToggle.isOn;
     }
 
 

@@ -29,6 +29,8 @@ public class SwipeInputHandler : MonoBehaviour
 
     void Update()
     {
+        if (GameManager.Instance.IsInReplay)
+        return;
         if (!GameManager.Instance.GameStarted) return;
         if (shotManager.IsShotInProgress())
             return;

@@ -5,6 +5,7 @@ using System.Collections;
 public class CameraController : MonoBehaviour
 {
     public CinemachineVirtualCamera thirdPersonCam;
+    public CinemachineVirtualCamera replayCamera;
 
     [Header("Offsets")]
     public Vector3 normalOffset = new Vector3(0, 2.5f, -6f);     // Default behind player
@@ -45,5 +46,27 @@ public class CameraController : MonoBehaviour
         }
 
         transposer.m_TrackedObjectOffset = targetOffset;
+    }
+
+    public void PlayReplay()
+    {
+        replayCamera.Priority = 20; // Activate replay camera
+        thirdPersonCam.Priority = 5; // Deactivate main camera temporarily
+        GameManager.Instance.IsInReplay = true;
+
+        // Slow down game for dramatic effect
+        Time.timeScale = 0.3f;
+
+        Invoke(nameof(EndReplay), 2f); // 2-second replay duration (real-time)
+    }
+
+    private void EndReplay()
+    {
+        replayCamera.Priority = 0; // Deactivate replay camera
+        thirdPersonCam.Priority = 10; // Return to main camera
+        GameManager.Instance.IsInReplay = false;
+
+        // Restore normal speed
+        Time.timeScale = 1f;
     }
 }

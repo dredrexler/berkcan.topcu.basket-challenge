@@ -63,6 +63,8 @@ public class AIShotManager : MonoBehaviour
 
     public void StartShot(ShotType type)
     {
+        if (GameManager.Instance.IsInReplay)
+        return;
 
         if (!GameManager.Instance.GameStarted) return;
         if (GameManager.Instance.IsChangingPosition || shotInProgress)
@@ -130,6 +132,7 @@ public class AIShotManager : MonoBehaviour
     public bool CanShoot()
     {
         return !shotInProgress;
+        
     }
 
     private void UpdatePositionToMatchPlayer()

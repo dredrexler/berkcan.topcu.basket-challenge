@@ -16,10 +16,15 @@ public class ShotManager : MonoBehaviour
     [SerializeField] private FireballManager fireballManager;
     [SerializeField] private Animator animator;
     [SerializeField] private DribbleBall dribbleBall;
+    [SerializeField] private ReplayManager replayManager;
+    [SerializeField] private BasketTrigger basketTrigger;
+
+   
 
     private bool shotInProgress = false;
     private Vector3 ballOriginalScale;
     private Vector3 launchPosition;
+    
 
     void Start()
     {
@@ -64,7 +69,8 @@ public class ShotManager : MonoBehaviour
 
     public void StartShot(ShotType type)
     {
-
+        if (GameManager.Instance.IsInReplay)
+        return;
         if (!GameManager.Instance.GameStarted) return;
         if (GameManager.Instance.IsChangingPosition)
         {
@@ -92,100 +98,110 @@ public class ShotManager : MonoBehaviour
         status.hasScored = false;
         cameraController.ZoomToHoop();
 
-        if (shotInProgress)
+        int bonus = backboardBonusManager.GetBonusPoints();
+        if (type == ShotType.Backboard && bonus > 3 && GameManager.Instance.IsReplayEnabled)
         {
-            Debug.LogWarning("Can't shoot: shotInProgress still true");
-            return;
+            replayManager.StartRecording();
         }
 
         GameManager.Instance.SetPositionLock(true);
         shotSlider.interactable = false;
         shotInProgress = true;
         ballShooter.ShootWithOutcome(type);
-        StartCoroutine(WaitForShotToComplete());
+        StartCoroutine(WaitForShotToComplete(type));
     }
 
-    private IEnumerator WaitForShotToComplete()
+    private IEnumerator WaitForShotToComplete(ShotType type)
     {
-        BallStatus status = ballShooter.GetComponent<BallStatus>();
-        yield return new WaitUntil(() => status.hitGround);
-        Debug.Log("Ball hit ground - continuing shot cycle");
+        Debug.Log("Waiting for shot to complete...");
 
-        yield return new WaitForSeconds(2f);
-        GameManager.Instance.SetPositionLock(false);
-        shotSlider.interactable = true;
-
-        if (!status.hasScored)
+        // Wait until the ball hits the ground
         {
-            Debug.Log("Missed shot, moving to new position");
-            int newIndex;
-            Vector3 newPos = positionManager.GetRandomPosition(out newIndex);
-            ballShooter.currentPositionIndex = newIndex;
+            BallStatus status = ballShooter.GetComponent<BallStatus>();
+            yield return new WaitUntil(() => status.hitGround);
+            Debug.Log("Ball hit ground - continuing shot cycle");
+            int bonus = backboardBonusManager.GetBonusPoints();
+            if (type == ShotType.Backboard && bonus > 3 && status.hasScored && GameManager.Instance.IsReplayEnabled)
+            {
+                replayManager.StopRecordingAndPlayReplay();
+                yield return new WaitForSeconds(replayManager.RecordedFrameCount * (replayManager.recordInterval / replayManager.replaySpeed) + 1f);
+            }
 
-            // cache launch position and move shooter
-            launchPosition = newPos;
-            Vector3 adjusted = newPos;
-            adjusted.y -= 2.1f;
-            shooter.position = adjusted;
-            shooter.LookAt(ballShooter.target);
+            yield return new WaitForSeconds(2f);
+            GameManager.Instance.SetPositionLock(false);
+            shotSlider.interactable = true;
 
-            Vector3 euler = shooter.rotation.eulerAngles;
-            euler.x += 20f;
-            shooter.rotation = Quaternion.Euler(euler);
+            if (!status.hasScored)
+            {
+                Debug.Log("Missed shot, moving to new position");
+                int newIndex;
+                Vector3 newPos = positionManager.GetRandomPosition(out newIndex);
+                ballShooter.currentPositionIndex = newIndex;
 
-            // place the ball and restart dribble
-            ballShooter.MoveToPosition(newPos);
-            ballShooter.transform.LookAt(ballShooter.target);
-            ballShooter.AttachBallToHand();
-            ballShooter.transform.localScale = ballOriginalScale;
-            dribbleBall?.StartDribble();
-            fireballManager.OnMiss();
+                // cache launch position and move shooter
+                launchPosition = newPos;
+                Vector3 adjusted = newPos;
+                adjusted.y -= 2.1f;
+                shooter.position = adjusted;
+                shooter.LookAt(ballShooter.target);
+
+                Vector3 euler = shooter.rotation.eulerAngles;
+                euler.x += 20f;
+                shooter.rotation = Quaternion.Euler(euler);
+
+                // place the ball and restart dribble
+                ballShooter.MoveToPosition(newPos);
+                ballShooter.transform.LookAt(ballShooter.target);
+                ballShooter.AttachBallToHand();
+                ballShooter.transform.localScale = ballOriginalScale;
+                dribbleBall?.StartDribble();
+                fireballManager.OnMiss();
+            }
+            else
+            {
+                Debug.Log("Shot scored, moving to new position");
+                int newIndex;
+                Vector3 newPos = positionManager.GetRandomPosition(out newIndex);
+                ballShooter.currentPositionIndex = newIndex;
+
+                // Cache new launch pos and move shooter
+                launchPosition = newPos;
+                Vector3 adjusted = newPos;
+                adjusted.y -= 2.1f;
+                shooter.position = adjusted;
+                shooter.LookAt(ballShooter.target);
+
+                Vector3 euler = shooter.rotation.eulerAngles;
+                euler.x += 20f;
+                shooter.rotation = Quaternion.Euler(euler);
+
+                // Place ball at new court position & attach to hand/dribble
+                ballShooter.MoveToPosition(newPos);
+                ballShooter.transform.LookAt(ballShooter.target);
+                ballShooter.AttachBallToHand();
+                ballShooter.transform.localScale = ballOriginalScale;
+
+
+                dribbleBall?.StartDribble();
+
+
+            }
+
+            backboardBonusManager.TrySpawnBonus();
+            backboardBonusManager.RegisterShot();
+
+            status.hitGround = false;
+            status.hasScored = false;
+            shotInProgress = false;
+
+            cameraController.ResetToPlayerView();
+
+
+            animator.SetBool("IsBouncing", true);
+
+
         }
-        else
-        {
-            Debug.Log("Shot scored, moving to new position");
-            int newIndex;
-            Vector3 newPos = positionManager.GetRandomPosition(out newIndex);
-            ballShooter.currentPositionIndex = newIndex;
-
-            // Cache new launch pos and move shooter
-            launchPosition = newPos;
-            Vector3 adjusted = newPos;
-            adjusted.y -= 2.1f;
-            shooter.position = adjusted;
-            shooter.LookAt(ballShooter.target);
-
-            Vector3 euler = shooter.rotation.eulerAngles;
-            euler.x += 20f;
-            shooter.rotation = Quaternion.Euler(euler);
-
-            // Place ball at new court position & attach to hand/dribble
-            ballShooter.MoveToPosition(newPos);
-            ballShooter.transform.LookAt(ballShooter.target);
-            ballShooter.AttachBallToHand();
-            ballShooter.transform.localScale = ballOriginalScale;
-
-            
-            dribbleBall?.StartDribble();
-            
-
-        }
-
-        backboardBonusManager.TrySpawnBonus();
-        backboardBonusManager.RegisterShot();
-
-        status.hitGround = false;
-        status.hasScored = false;
-        shotInProgress = false;
-
-        cameraController.ResetToPlayerView();
-        
-        
-        animator.SetBool("IsBouncing", true);
-        
-        
     }
-
     // UI quick methods
     public void ShootPerfect()       => StartShot(ShotType.Perfect);
     public void ShootBackboard()     => StartShot(ShotType.Backboard);

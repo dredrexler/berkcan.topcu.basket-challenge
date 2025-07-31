@@ -3,9 +3,6 @@ using UnityEngine.UI;
 using TMPro;
 
 
-// Temporary controller to test flow: lets you add points and finish the round.
-// Replace the scoring button with the real swipe/shot logic later.
-
 public class GameplayController : MonoBehaviour
 {
     [Header("UI")]
@@ -15,6 +12,8 @@ public class GameplayController : MonoBehaviour
     [SerializeField] private CountdownManager countdownManager;
     [SerializeField] private CanvasGroup gameplayUI1;
     [SerializeField] private CanvasGroup gameplayUI2;
+    [SerializeField] private TextMeshProUGUI clutchTimeText;
+    private bool clutchTimeDisplayed = false;
 
     private void Start()
     {
@@ -49,6 +48,24 @@ public class GameplayController : MonoBehaviour
 
         // when countdown ends, show the UI
         countdownManager.OnCountdownFinished.AddListener(EnableGameplayUI);
+        clutchTimeText.gameObject.SetActive(false);
+    }
+
+    private void Update()
+    {
+        if (!clutchTimeDisplayed && GameManager.Instance.IsClutchTimeEnabled && GameManager.Instance.TimeRemaining <= 20f)
+        {
+            ActivateClutchTime();
+        }
+    }
+
+    private void ActivateClutchTime()
+    {
+        clutchTimeText.gameObject.SetActive(true);
+        clutchTimeText.text = "CLUTCH TIME x2 POINTS";
+        clutchTimeText.color = Color.red;
+
+        clutchTimeDisplayed = true;
     }
 
     private void EnableGameplayUI()

@@ -22,6 +22,9 @@ public class BasketTrigger : MonoBehaviour
     [SerializeField] private AudioClip rimSfx;
     [SerializeField] private AudioClip backboardSfx;
     [SerializeField] private AudioClip backboardBonusSfx;
+    [Header("Camera")]
+    [SerializeField] private CameraController cameraController;
+    [SerializeField] private ReplayManager replayManager;
 
     private ParticleSystem perfectVFX;
     private ParticleSystem rimVFX;
@@ -46,53 +49,60 @@ public class BasketTrigger : MonoBehaviour
         if (!other.CompareTag("Ball")) return;
         var status = other.GetComponent<BallStatus>();
         if (status == null || status.hasScored) return;
-
+        
         Debug.Log("Ball entered the basket!");
-
+        int bonus = backboardBonusManager.GetBonusPoints();
         // 1) Determine base points, title text, color & VFX
-        int    basePoints = 0;
-        string title      = "";
-        Color  msgColor   = Color.white;
+        int basePoints = 0;
+        string title = "";
+        Color msgColor = Color.white;
         ParticleSystem toPlay = null;
 
         switch (status.shotType)
         {
             case ShotType.Perfect:
                 basePoints = 3;
-                title      = "Perfect Shot!";
+                title = "Perfect Shot!";
                 audioSource?.PlayOneShot(perfectSfx);
-                msgColor   = Color.green;
-                toPlay     = perfectVFX;
+                msgColor = Color.green;
+                toPlay = perfectVFX;
                 break;
 
             case ShotType.Rim:
                 basePoints = 2;
-                title      = "Rim Shot!";
+                title = "Rim Shot!";
                 audioSource?.PlayOneShot(rimSfx);
-                msgColor   = Color.grey;
-                toPlay     = rimVFX;
+                msgColor = Color.grey;
+                toPlay = rimVFX;
                 break;
 
             case ShotType.Backboard:
-                int bonus = backboardBonusManager.GetBonusPoints();
                 if (bonus > 0)
                 {
                     basePoints = bonus;
-                    title      = "Backboard Bonus!";
+                    title = "Backboard Bonus!";
                     audioSource?.PlayOneShot(backboardBonusSfx);
-                    msgColor   = Color.magenta;  // purple
-                    toPlay     = backboardVFX;
+                    msgColor = Color.magenta;  // purple
+                    toPlay = backboardVFX;
                 }
                 else
                 {
                     basePoints = 2;
-                    title      = "Backboard Shot!";
+                    title = "Backboard Shot!";
                     audioSource?.PlayOneShot(backboardSfx);
-                    msgColor   = Color.white;
-                    toPlay     = rimVFX;
+                    msgColor = Color.white;
+                    toPlay = rimVFX;
                 }
                 break;
         }
+
+        // Apply Clutch Time multiplier
+        if (GameManager.Instance.IsClutchTimeActive)
+        {
+            basePoints *= 2;
+            floatingTextManager.ShowMessage("Clutch Time! Double Points!", Color.red);
+        }
+        
 
         // 2) Apply fireball multiplier
         int totalPoints = fireballManager.ApplyMultiplier(basePoints);
@@ -112,6 +122,11 @@ public class BasketTrigger : MonoBehaviour
         // 6) Update UI and mark scored
         UpdateScoreUI();
         status.hasScored = true;
+        
+        if (status.shotType == ShotType.Backboard && bonus > 3 && GameManager.Instance.IsReplayEnabled)
+        {
+            replayManager.PlayReplay();
+        }
     }
 
     private void PlayVFX(ParticleSystem fx)

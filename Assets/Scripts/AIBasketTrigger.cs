@@ -42,6 +42,12 @@ public class AIBasketTrigger : MonoBehaviour
                 break;
         }
 
+        // Apply Clutch Time multiplier
+        if (GameManager.Instance.IsClutchTimeActive)
+        {
+            basePoints *= 2;
+        }
+
         // Apply fireball multiplier
         int totalPoints = fireballManager.ApplyMultiplier(basePoints);
 
