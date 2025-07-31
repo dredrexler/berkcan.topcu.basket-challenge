@@ -699,59 +699,6 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!1 &65083948
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 65083950}
-  - component: {fileID: 65083949}
-  m_Layer: 0
-  m_Name: GameManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &65083949
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 65083948}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bb057992784627649a6e9e02aebaea3e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  InCampaign: 0
-  CampaignIndex: 0
-  CampaignScenes: []
-  CampaignDifficulties: 
-  GameDuration: 60
-  _gameStarted: 0
-  aiShotManager: {fileID: 2147074644}
-  aiShotTypeDropdown: {fileID: 983155313}
-  aiDebugShootButton: {fileID: 975876512}
---- !u!4 &65083950
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 65083948}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 464.95874, y: 236.66106, z: 3.257463}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 36
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &84140230
 GameObject:
   m_ObjectHideFlags: 0
@@ -1947,7 +1894,7 @@ MonoBehaviour:
   OnCountdownFinished:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 65083949}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
         m_MethodName: StartGame
         m_Mode: 1
@@ -1959,7 +1906,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 65083949}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
         m_MethodName: StartTimer
         m_Mode: 1
@@ -4814,8 +4761,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 621430156}
-  m_LocalRotation: {x: -0.13110696, y: 0.12272744, z: 0.016358597, w: 0.98360634}
-  m_LocalPosition: {x: -9.657195, y: -0.9153997, z: -1.3326557}
+  m_LocalRotation: {x: -0.13112246, y: 0.12337768, z: 0.016448637, w: 0.9835214}
+  m_LocalPosition: {x: -9.628659, y: -0.91591036, z: -1.3393167}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -11516,8 +11463,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1300439197}
-  m_LocalRotation: {x: -0.13110629, y: 0.122666866, z: 0.016350308, w: 0.9836141}
-  m_LocalPosition: {x: -9.657196, y: -0.91539985, z: -1.3326555}
+  m_LocalRotation: {x: -0.13112246, y: 0.12337768, z: 0.016448637, w: 0.9835214}
+  m_LocalPosition: {x: -9.628659, y: -0.91591036, z: -1.3393167}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -15955,7 +15902,7 @@ RectTransform:
   m_Children:
   - {fileID: 874710120}
   m_Father: {fileID: 0}
-  m_RootOrder: 37
+  m_RootOrder: 36
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}

@@ -165,6 +165,7 @@ public class GameManager : MonoBehaviour
 
         AddCoins(TotalScore);
         // After gameplay ends, load Reward
+
         SceneManager.LoadScene("Reward");
     }
 
@@ -196,5 +197,10 @@ public class GameManager : MonoBehaviour
     public void SetDifficulty(AIDifficulty difficulty)
     {
         SelectedDifficulty = difficulty;
+    }
+
+    public void StartFreezeGame()
+    {
+        SceneManager.LoadScene("FreezeMode");
     }
 }

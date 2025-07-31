@@ -48,6 +48,7 @@ public class AIShotManager : MonoBehaviour
         aiBallTransform.localScale = aiBallOriginalScale;
         aidribbleBall?.StartDribble();
         animator.SetBool("AIisBouncing", true);
+
     }
 
     public void DebugShootSelected()
@@ -62,6 +63,7 @@ public class AIShotManager : MonoBehaviour
 
     public void StartShot(ShotType type)
     {
+
         if (!GameManager.Instance.GameStarted) return;
         if (GameManager.Instance.IsChangingPosition || shotInProgress)
             return;
@@ -90,10 +92,14 @@ public class AIShotManager : MonoBehaviour
         aiBallShooter.ShootWithOutcome(type);
 
         StartCoroutine(WaitForShotToComplete());
+        
+        
     }
 
     private IEnumerator WaitForShotToComplete()
     {
+        
+            
         var status = aiBallShooter.GetComponent<BallStatus>();
         yield return new WaitUntil(() => status.hitGround);
         yield return new WaitForSeconds(1f);
@@ -108,8 +114,10 @@ public class AIShotManager : MonoBehaviour
         // attach ball to hand and reset scale
         aiBallShooter.AttachBallToHand();
         aiBallTransform.localScale = aiBallOriginalScale;
+       
         aidribbleBall?.StartDribble();
         animator.SetBool("AIisBouncing", true);
+        
 
         // reset state
         status.hitGround = false;
@@ -119,7 +127,10 @@ public class AIShotManager : MonoBehaviour
         bonusManager.TrySpawnBonus();
     }
 
-    public bool CanShoot() => !shotInProgress;
+    public bool CanShoot()
+    {
+        return !shotInProgress;
+    }
 
     private void UpdatePositionToMatchPlayer()
     {

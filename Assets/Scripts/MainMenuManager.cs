@@ -15,23 +15,30 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private TMP_Dropdown difficultyDropdown;
     [Tooltip("Button to start Campaign Mode")]
     [SerializeField] private Button campaignButton;
+    [SerializeField] private Button freezemodeButton;
 
     [Header("Scene Names for Quick Play")]  
     [Tooltip("Scene names for each difficulty in the same order as difficultyDropdown options")]  
     [SerializeField] private string[] quickPlayScenes;
+    [SerializeField] private DribbleBall dribbleBall;
 
     // Predefined durations matching timeDropdown options
-    private readonly float[] durations = { 60f, 120f, 180f, 600f }; // 1m,2m,3m,10m
+    private readonly float[] durations = { 60f, 120f, 180f}; // 1m,2m,3m,10m
 
     void Start()
     {
         // Initialize dropdown callbacks
         difficultyDropdown.onValueChanged.AddListener(SetDifficultyFromDropdown);
-
+        dribbleBall?.StartDribble();
         // Campaign button
         campaignButton.onClick.AddListener(() =>
         {
             GameManager.Instance.StartCampaign();
+        });
+
+        freezemodeButton.onClick.AddListener(() =>
+        {
+            GameManager.Instance.StartFreezeGame();
         });
     }
 

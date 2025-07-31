@@ -23,11 +23,14 @@ public class ShotManager : MonoBehaviour
 
     void Start()
     {
+        Debug.Log($"[ShotManager] InCampaign = {GameManager.Instance.InCampaign}");
+
         ballOriginalScale = ballTransform.transform.localScale;
         SetInitialPosition();
         GameManager.Instance.SetPositionLock(false);
         animator.SetBool("IsBouncing", true);
-        ballShooter.DetachBallFromHand();
+        //ballShooter.DetachBallFromHand();
+        ballShooter.AttachBallToHand();
         ballShooter.transform.localScale = ballOriginalScale;
         // ensure scale reset
         ballShooter.transform.localScale = Vector3.one;
@@ -56,10 +59,12 @@ public class ShotManager : MonoBehaviour
         // Place ball at court position & parent to hand
         ballShooter.MoveToPosition(pos);
         ballShooter.transform.LookAt(ballShooter.target);
+        
     }
 
     public void StartShot(ShotType type)
     {
+
         if (!GameManager.Instance.GameStarted) return;
         if (GameManager.Instance.IsChangingPosition)
         {
@@ -134,7 +139,6 @@ public class ShotManager : MonoBehaviour
             ballShooter.AttachBallToHand();
             ballShooter.transform.localScale = ballOriginalScale;
             dribbleBall?.StartDribble();
-
             fireballManager.OnMiss();
         }
         else
@@ -160,7 +164,11 @@ public class ShotManager : MonoBehaviour
             ballShooter.transform.LookAt(ballShooter.target);
             ballShooter.AttachBallToHand();
             ballShooter.transform.localScale = ballOriginalScale;
+
+            
             dribbleBall?.StartDribble();
+            
+
         }
 
         backboardBonusManager.TrySpawnBonus();
@@ -171,7 +179,11 @@ public class ShotManager : MonoBehaviour
         shotInProgress = false;
 
         cameraController.ResetToPlayerView();
+        
+        
         animator.SetBool("IsBouncing", true);
+        
+        
     }
 
     // UI quick methods

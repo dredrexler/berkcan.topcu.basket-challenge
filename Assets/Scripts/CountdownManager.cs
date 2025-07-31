@@ -34,9 +34,13 @@ public class CountdownManager : MonoBehaviour
         countdownText.text = "GO!";
         yield return new WaitForSeconds(0.5f);
         countdownPanel.SetActive(false);
-        GameManager.Instance.StartGame();
-        GameManager.Instance.StartTimer();
-
         OnCountdownFinished?.Invoke();
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.StartGame();
+            GameManager.Instance.StartTimer();
+        }
+
+        
     }
 }

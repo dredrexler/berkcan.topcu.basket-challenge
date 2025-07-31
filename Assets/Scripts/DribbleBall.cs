@@ -1,4 +1,3 @@
-// DribbleBall.cs
 using UnityEngine;
 
 [RequireComponent(typeof(Transform))]
@@ -13,28 +12,30 @@ public class DribbleBall : MonoBehaviour
 
     private bool isDribbling = false;
     private float timer = 0f;
-    private float handY;
-    private float groundY;
 
     void Update()
     {
         if (!isDribbling || handTransform == null)
             return;
 
+        // Always recompute in case hand moved
+        float handY   = handTransform.position.y;
+        float groundY = handY - dropDistance;
+
         // follow hand X/Z
-        Vector3 pos;
+        Vector3 pos = transform.position;
         pos.x = handTransform.position.x;
         pos.z = handTransform.position.z;
 
-        // cosine bob: at timer=0, cos(0)=1 -> hand level, then falls
+        // bob the Y with a sine: 0 -> groundY, 1 -> handY
         timer += Time.deltaTime * frequency * Mathf.PI * 2f;
-        float t = (Mathf.Cos(timer) + 1f) * 0.5f;  // [0..1]
+        float t = (Mathf.Sin(timer) + 1f) * 0.5f;         
         pos.y = Mathf.Lerp(groundY, handY, t);
 
         transform.position = pos;
     }
 
-    /// Starts the looping dribble (snaps immediately just below the hand).
+    /// Starts the looping dribble (snaps immediately to hand).
     public void StartDribble()
     {
         if (handTransform == null)
@@ -43,18 +44,14 @@ public class DribbleBall : MonoBehaviour
             return;
         }
 
-        // Recalculate the vertical range in case the hand has moved
-        handY = handTransform.position.y;
-        groundY = handY - dropDistance;
-
-        isDribbling = true;
         timer = 0f;
+        isDribbling = true;
 
-        // start just below hand so it immediately falls
-        transform.position = handTransform.position + Vector3.down * (dropDistance * 0.5f);
+        // Snap instantly to the hand so the first bounce is correct
+        transform.position = handTransform.position;
     }
 
-    /// Stops dribbling, leaves ball where it is.
+    /// Stops dribbling, leaving the ball at its current world position.
     public void StopDribble()
     {
         isDribbling = false;

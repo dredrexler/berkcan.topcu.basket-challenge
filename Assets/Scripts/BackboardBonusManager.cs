@@ -22,6 +22,8 @@ public class BackboardBonusManager : MonoBehaviour
 
     [SerializeField] private FloatingTextManager floatingTextManager;
 
+
+
     public void TrySpawnBonus()
     {
 
@@ -45,6 +47,7 @@ public class BackboardBonusManager : MonoBehaviour
             cooldownShotsRemaining = 5;
             ShowBonusText();
         }
+
     }
 
     private void ShowBonusText()

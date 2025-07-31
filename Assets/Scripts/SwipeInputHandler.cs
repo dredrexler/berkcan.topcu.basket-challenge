@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
+using TMPro;
 
 public class SwipeInputHandler : MonoBehaviour
 {
@@ -17,7 +18,7 @@ public class SwipeInputHandler : MonoBehaviour
     private bool shotFired;
 
     private const float maxSwipeDuration = 0.75f;
-    private const float swipeDistanceForFull = 1000f;
+    private const float swipeDistanceForFull = 750f;
 
     void OnEnable()
     {
@@ -149,10 +150,10 @@ public class SwipeInputHandler : MonoBehaviour
         List<RaycastResult> results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(pointerData, results);
 
-        // Check if any hit object has a Button component
+        // Check if any hit object has a Dropdown component
         foreach (RaycastResult result in results)
         {
-            if (result.gameObject.GetComponent<Dropdown>() != null)
+            if (result.gameObject.GetComponent<TMP_Dropdown>() != null)
                 return true;
         }
         return false;

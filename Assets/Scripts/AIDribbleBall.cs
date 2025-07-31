@@ -18,8 +18,13 @@ public class AIDribbleBall : MonoBehaviour
 
     void Update()
     {
+
         if (!isDribbling || handTransform == null)
             return;
+
+        // Always recompute in case hand moved
+        float handY   = handTransform.position.y;
+        float groundY = handY - dropDistance;
 
         // follow hand X/Z
         Vector3 pos;

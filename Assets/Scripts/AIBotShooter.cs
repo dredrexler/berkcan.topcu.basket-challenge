@@ -97,12 +97,32 @@ public class AIBotShooter : MonoBehaviour
 
     private ShotType ChooseShot()
     {
-        if (bonusManager.HasActiveBonus())
-            return ShotType.Backboard;
+        // Base probabilities
+        float pPerfect   = perfectShotChance;
+        float pBackboard = backboardShotChance;
+        float pRim       = 1f - pPerfect - pBackboard;  // whatever’s left
 
+        // If bonus is active, bump up backboard chance (e.g. +50% of its original share),
+        // but don’t exceed the space left after reserving a sliver for a rim shot.
+        if (bonusManager.HasActiveBonus())
+        {
+            // how much extra to give backboard?
+            float extra = pBackboard * 0.5f; 
+            // clamp so we never eliminate rim entirely
+            extra = Mathf.Min(extra, 1f - pPerfect - pBackboard - 0.05f);
+
+            pBackboard += extra;
+            pRim        = 1f - pPerfect - pBackboard;
+        }
+
+        // roll once against the total distribution
         float roll = Random.value;
-        if (roll <= perfectShotChance) return ShotType.Perfect;
-        if (roll <= perfectShotChance + backboardShotChance) return ShotType.Backboard;
-        return ShotType.Rim;
+        if (roll < pPerfect)
+            return ShotType.Perfect;
+        else if (roll < pPerfect + pBackboard)
+            return ShotType.Backboard;
+        else
+            return ShotType.Rim;
     }
+
 }
