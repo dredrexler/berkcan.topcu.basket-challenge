@@ -40,6 +40,7 @@ public class ReplayManager : MonoBehaviour
 
     public IEnumerator PlayReplay()
     {
+        GameManager.Instance.StopTimer(); // Stop the game timer
         replayCam.Priority = 20; // Make replayCam the active camera
         virtualCam.Priority = 5; // Deactivate main camera temporarily
         ball.GetComponent<Rigidbody>().isKinematic = true; // Freeze ball physics
@@ -55,5 +56,6 @@ public class ReplayManager : MonoBehaviour
         ball.GetComponent<Rigidbody>().isKinematic = false; // Restore physics
         replayCam.Priority = 0; // Return to normal gameplay camera
         virtualCam.Priority = 10; // Reactivate main camera
+        GameManager.Instance.ResumeTimer(); // Resume the game timer
     }
 }

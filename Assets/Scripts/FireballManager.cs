@@ -83,7 +83,7 @@ public class FireballManager : MonoBehaviour
 
     private void EndFireball()
     {
-        fireballText.ShowFireballMessage("FIREBALL ENDED!", Color.grey);
+        fireballText.ShowFireballMessage("FIREBALL ENDED!", Color.white);
 
         // stop looped audio
         if (loopAudioSource != null)

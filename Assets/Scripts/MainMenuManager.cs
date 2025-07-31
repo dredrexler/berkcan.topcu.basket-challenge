@@ -23,6 +23,7 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private DribbleBall dribbleBall;
     [SerializeField] private Toggle clutchToggle;
     [SerializeField] private Toggle replayToggle;
+    [SerializeField] private Toggle freezemodeToggle;
 
     // Predefined durations matching timeDropdown options
     private readonly float[] durations = { 60f, 120f, 180f }; // 1m,2m,3m,10m
@@ -40,6 +41,7 @@ public class MainMenuManager : MonoBehaviour
 
         clutchToggle.isOn = GameManager.Instance.IsClutchTimeEnabled;
         replayToggle.isOn = GameManager.Instance.IsReplayEnabled;
+        freezemodeToggle.isOn = GameManager.Instance.FreezeModeEnabled;
     }
 
 
@@ -65,15 +67,22 @@ public class MainMenuManager : MonoBehaviour
         // InCampaign is private, so reset via Exit
         GameManager.Instance.InCampaign = false;
 
-        // 4) Load corresponding scene
+        // 4) Set last played scene
+        string sceneToLoad = "Gameplay"; // default/fallback
         if (diffIndex >= 0 && diffIndex < quickPlayScenes.Length)
-            SceneManager.LoadScene(quickPlayScenes[diffIndex]);
+            sceneToLoad = quickPlayScenes[diffIndex];
         else
             Debug.LogError("QuickPlayScenes array out of range or not set up correctly.");
+
+        GameManager.Instance.SetLastPlayedScene(sceneToLoad);
 
         // 5) Set clutch time based on toggle
         SetClutchTime();
         GameManager.Instance.IsReplayEnabled = replayToggle.isOn;
+        GameManager.Instance.FreezeModeEnabled = freezemodeToggle.isOn;
+
+        // 6) Load scene
+        SceneManager.LoadScene(sceneToLoad);
     }
     private void SetClutchTime()
     {

@@ -4,6 +4,7 @@ using System.Collections;
 
 public class FloatingTextManager : MonoBehaviour
 {
+    public static FloatingTextManager Instance;
     [SerializeField] private TextMeshProUGUI floatingText;
     [SerializeField] private float displayDuration = 2f;
     [SerializeField] private float moveSpeed = 30f;

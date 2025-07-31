@@ -49,7 +49,7 @@ public class BasketTrigger : MonoBehaviour
         if (!other.CompareTag("Ball")) return;
         var status = other.GetComponent<BallStatus>();
         if (status == null || status.hasScored) return;
-        
+
         Debug.Log("Ball entered the basket!");
         int bonus = backboardBonusManager.GetBonusPoints();
         // 1) Determine base points, title text, color & VFX
@@ -72,7 +72,7 @@ public class BasketTrigger : MonoBehaviour
                 basePoints = 2;
                 title = "Rim Shot!";
                 audioSource?.PlayOneShot(rimSfx);
-                msgColor = Color.grey;
+                msgColor = Color.white;
                 toPlay = rimVFX;
                 break;
 
@@ -102,7 +102,7 @@ public class BasketTrigger : MonoBehaviour
             basePoints *= 2;
             floatingTextManager.ShowMessage("Clutch Time! Double Points!", Color.red);
         }
-        
+
 
         // 2) Apply fireball multiplier
         int totalPoints = fireballManager.ApplyMultiplier(basePoints);
@@ -122,11 +122,25 @@ public class BasketTrigger : MonoBehaviour
         // 6) Update UI and mark scored
         UpdateScoreUI();
         status.hasScored = true;
-        
+
         if (status.shotType == ShotType.Backboard && bonus > 3 && GameManager.Instance.IsReplayEnabled)
         {
             replayManager.PlayReplay();
         }
+        
+        if (GameManager.Instance.FreezeModeEnabled)
+            {
+                if (status.shotType == ShotType.Perfect && status.hasScored && GameManager.Instance.FreezeModeEnabled)
+                {
+                    FreezeManager.Instance.RegisterPerfectShot(true);
+                }
+                else
+                {
+                    // Reset streak for player if NOT perfect
+                    FreezeManager.Instance.ResetPlayerStreak();
+                }
+            }
+
     }
 
     private void PlayVFX(ParticleSystem fx)

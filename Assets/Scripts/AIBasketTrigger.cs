@@ -9,6 +9,7 @@ public class AIBasketTrigger : MonoBehaviour
     [Header("Scoring Helpers")]
     [SerializeField] private BackboardBonusManager backboardBonusManager;
     [SerializeField] private AIFireballManager fireballManager;
+    [SerializeField] private FreezeManager freezeManager;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -48,6 +49,7 @@ public class AIBasketTrigger : MonoBehaviour
             basePoints *= 2;
         }
 
+
         // Apply fireball multiplier
         int totalPoints = fireballManager.ApplyMultiplier(basePoints);
 
@@ -60,7 +62,21 @@ public class AIBasketTrigger : MonoBehaviour
         // Update AI score UI
         UpdateScoreUI();
 
+
+
         status.hasScored = true;
+        
+        if (GameManager.Instance.FreezeModeEnabled)
+        {
+            if (status.shotType == ShotType.Perfect && status.hasScored)
+            {
+                freezeManager.RegisterPerfectShot(false); // AI scored perfect
+            }
+            else
+            {
+                freezeManager.ResetAIStreak(); // Reset AI streak if NOT perfect
+            }
+        }
     }
 
 

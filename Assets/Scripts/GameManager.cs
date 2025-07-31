@@ -47,6 +47,9 @@ public class GameManager : MonoBehaviour
 
     public bool IsReplayEnabled = false;
     public bool IsInReplay = false;
+    public bool FreezeModeEnabled = false;
+
+    public string LastPlayedScene { get; private set; } = "Gameplay"; // default fallback
 
     void Start()
     {
@@ -69,6 +72,11 @@ public class GameManager : MonoBehaviour
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+    }
+
+    public void SetLastPlayedScene(string sceneName)
+    {
+        LastPlayedScene = sceneName;
     }
 
     // ---------------- Campaign Flow ----------------
@@ -136,6 +144,12 @@ public class GameManager : MonoBehaviour
     public void StartTimer()
     {
         TimeRemaining = GameDuration;
+        IsTimerRunning = true;
+    }
+
+    public void ResumeTimer()
+    {
+        // Don't reset TimeRemaining!
         IsTimerRunning = true;
     }
 

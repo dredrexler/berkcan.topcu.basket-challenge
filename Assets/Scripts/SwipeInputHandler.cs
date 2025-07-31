@@ -30,10 +30,16 @@ public class SwipeInputHandler : MonoBehaviour
     void Update()
     {
         if (GameManager.Instance.IsInReplay)
-        return;
+            return;
         if (!GameManager.Instance.GameStarted) return;
         if (shotManager.IsShotInProgress())
             return;
+        
+        if (IsPointerOverUIPanelWithTag(Input.mousePosition, "BlockInput"))
+        {
+            // Block swipes or other gameplay input!
+            return;
+        }
 
 #if UNITY_ANDROID || UNITY_IOS
         // Touch input
@@ -136,7 +142,7 @@ public class SwipeInputHandler : MonoBehaviour
         }
         return false;
     }
-    
+
     private bool IsPointerOverUIDropdown(Vector2 screenPosition)
     {
         if (EventSystem.current == null)
@@ -160,4 +166,26 @@ public class SwipeInputHandler : MonoBehaviour
         }
         return false;
     }
+
+    private bool IsPointerOverUIPanelWithTag(Vector2 screenPosition, string tag)
+    {
+        if (EventSystem.current == null)
+            return false;
+
+        PointerEventData pointerData = new PointerEventData(EventSystem.current)
+        {
+            position = screenPosition
+        };
+
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointerData, results);
+
+        foreach (RaycastResult result in results)
+        {
+            if (result.gameObject.CompareTag(tag))
+                return true;
+        }
+        return false;
+    }
+    
 }

@@ -57,9 +57,12 @@ public class RewardUI : MonoBehaviour
         {
             if (GameManager.Instance.InCampaign)
                 GameManager.Instance.RestartCampaignLevel();
+            else if (!string.IsNullOrEmpty(GameManager.Instance.LastPlayedScene))
+                SceneManager.LoadScene(GameManager.Instance.LastPlayedScene);
             else
-                SceneManager.LoadScene("Gameplay");
+                SceneManager.LoadScene("Gameplay"); // fallback
         });
+
 
         // Next Game: only show if in campaign, just won, and not last level
         bool canAdvance =

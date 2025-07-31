@@ -13,6 +13,8 @@ public class GameplayController : MonoBehaviour
     [SerializeField] private CanvasGroup gameplayUI1;
     [SerializeField] private CanvasGroup gameplayUI2;
     [SerializeField] private TextMeshProUGUI clutchTimeText;
+    [SerializeField] private ParticleSystem clutchParticles1;
+    [SerializeField] private ParticleSystem clutchParticles2;
     private bool clutchTimeDisplayed = false;
 
     private void Start()
@@ -55,12 +57,15 @@ public class GameplayController : MonoBehaviour
     {
         if (!clutchTimeDisplayed && GameManager.Instance.IsClutchTimeEnabled && GameManager.Instance.TimeRemaining <= 20f)
         {
+            clutchParticles1.Play();
+            clutchParticles2.Play();
             ActivateClutchTime();
         }
     }
 
     private void ActivateClutchTime()
     {
+
         clutchTimeText.gameObject.SetActive(true);
         clutchTimeText.text = "CLUTCH TIME x2 POINTS";
         clutchTimeText.color = Color.red;

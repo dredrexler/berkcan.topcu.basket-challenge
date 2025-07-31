@@ -18,7 +18,8 @@ public class ShotManager : MonoBehaviour
     [SerializeField] private DribbleBall dribbleBall;
     [SerializeField] private ReplayManager replayManager;
     [SerializeField] private BasketTrigger basketTrigger;
-
+    [SerializeField] private SwipeInputHandler swipeInputHandler;
+    [SerializeField] private FreezeObject freezeObject;
    
 
     private bool shotInProgress = false;
@@ -40,6 +41,28 @@ public class ShotManager : MonoBehaviour
         // ensure scale reset
         ballShooter.transform.localScale = Vector3.one;
         dribbleBall?.StartDribble();
+    }
+
+    public void SetFrozen(bool frozen)
+    {
+        // Disable swipe input (assumes you have an enabled property or can disable the component)
+        if (swipeInputHandler != null)
+            swipeInputHandler.enabled = !frozen;
+
+        if (frozen == true)
+        {
+            freezeObject.SetFrozen(true);
+            animator.enabled = false;
+            dribbleBall?.StopDribble();
+            dribbleBall.enabled = false;
+        }
+        else if (frozen == false)
+        {
+            freezeObject.SetFrozen(false);
+            animator.enabled = true;
+            dribbleBall?.StartDribble();
+            dribbleBall.enabled = true;
+        }
     }
 
     private void SetInitialPosition()
@@ -64,13 +87,22 @@ public class ShotManager : MonoBehaviour
         // Place ball at court position & parent to hand
         ballShooter.MoveToPosition(pos);
         ballShooter.transform.LookAt(ballShooter.target);
-        
+
     }
 
     public void StartShot(ShotType type)
     {
+        /*
+        if (!FreezeManager.Instance.CanPlayerShoot() && FreezeManager.Instance.FreezeUsedThisPeriod)
+        {
+            animator.enabled = false;
+            dribbleBall?.StopDribble();
+            return;
+        }
+        animator.enabled = true;
+        */
         if (GameManager.Instance.IsInReplay)
-        return;
+            return;
         if (!GameManager.Instance.GameStarted) return;
         if (GameManager.Instance.IsChangingPosition)
         {
@@ -104,6 +136,8 @@ public class ShotManager : MonoBehaviour
             replayManager.StartRecording();
         }
 
+
+
         GameManager.Instance.SetPositionLock(true);
         shotSlider.interactable = false;
         shotInProgress = true;
@@ -121,6 +155,7 @@ public class ShotManager : MonoBehaviour
             yield return new WaitUntil(() => status.hitGround);
             Debug.Log("Ball hit ground - continuing shot cycle");
             int bonus = backboardBonusManager.GetBonusPoints();
+
             if (type == ShotType.Backboard && bonus > 3 && status.hasScored && GameManager.Instance.IsReplayEnabled)
             {
                 replayManager.StopRecordingAndPlayReplay();
@@ -130,7 +165,6 @@ public class ShotManager : MonoBehaviour
             yield return new WaitForSeconds(2f);
             GameManager.Instance.SetPositionLock(false);
             shotSlider.interactable = true;
-
             if (!status.hasScored)
             {
                 Debug.Log("Missed shot, moving to new position");
@@ -195,15 +229,22 @@ public class ShotManager : MonoBehaviour
             shotInProgress = false;
 
             cameraController.ResetToPlayerView();
+            if (GameManager.Instance.FreezeModeEnabled)
+            {
+                FreezeManager.Instance.TryActivateFreezeMode();
+                FreezeManager.Instance.RegisterShot();
+            }
+            
+                animator.SetBool("IsBouncing", true);
 
 
-            animator.SetBool("IsBouncing", true);
+            }
 
-
-        }
     }
+
+    
     // UI quick methods
-    public void ShootPerfect()       => StartShot(ShotType.Perfect);
+    public void ShootPerfect() => StartShot(ShotType.Perfect);
     public void ShootBackboard()     => StartShot(ShotType.Backboard);
     public void ShootRim()           => StartShot(ShotType.Rim);
     public void ShootLowMiss()       => StartShot(ShotType.LowMiss);

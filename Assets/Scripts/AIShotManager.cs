@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine.UI;
 using TMPro;
 
+
 public class AIShotManager : MonoBehaviour
 {
     [Header("AI References")]
@@ -15,6 +16,7 @@ public class AIShotManager : MonoBehaviour
     [SerializeField] private AIDribbleBall aidribbleBall;
     [SerializeField] private Button aiDebugShootButton;
     [SerializeField] private TMP_Dropdown aiShotTypeDropdown;
+    [SerializeField] private FreezeObject freezeObject;
 
     private bool shotInProgress = false;
     private Vector3 pendingLaunchPos;
@@ -51,6 +53,25 @@ public class AIShotManager : MonoBehaviour
 
     }
 
+    public void SetFrozen(bool frozen)
+    {
+
+        if (frozen == true)
+        {
+            freezeObject.SetFrozen(true);
+            animator.enabled = false;
+            aidribbleBall?.StopDribble();
+            aidribbleBall.enabled = false;
+        }
+        else if (frozen == false)
+        {
+            freezeObject.SetFrozen(false);
+            animator.enabled = true;
+            aidribbleBall?.StartDribble();
+            aidribbleBall.enabled = true;
+        }
+    }
+
     public void DebugShootSelected()
     {
         // read the dropdown’s value, cast to your enum, then call the real StartShot:
@@ -63,9 +84,10 @@ public class AIShotManager : MonoBehaviour
 
     public void StartShot(ShotType type)
     {
+        if (FreezeManager.Instance.IsAIFrozen)
+            return;
         if (GameManager.Instance.IsInReplay)
-        return;
-
+            return;
         if (!GameManager.Instance.GameStarted) return;
         if (GameManager.Instance.IsChangingPosition || shotInProgress)
             return;
@@ -100,8 +122,9 @@ public class AIShotManager : MonoBehaviour
 
     private IEnumerator WaitForShotToComplete()
     {
-        
-            
+        if (FreezeManager.Instance.IsAIFrozen)
+            yield break;
+
         var status = aiBallShooter.GetComponent<BallStatus>();
         yield return new WaitUntil(() => status.hitGround);
         yield return new WaitForSeconds(1f);
@@ -116,10 +139,10 @@ public class AIShotManager : MonoBehaviour
         // attach ball to hand and reset scale
         aiBallShooter.AttachBallToHand();
         aiBallTransform.localScale = aiBallOriginalScale;
-       
+
         aidribbleBall?.StartDribble();
         animator.SetBool("AIisBouncing", true);
-        
+
 
         // reset state
         status.hitGround = false;
@@ -127,6 +150,14 @@ public class AIShotManager : MonoBehaviour
         shotInProgress = false;
 
         bonusManager.TrySpawnBonus();
+        if (GameManager.Instance.FreezeModeEnabled)
+        {
+            FreezeManager.Instance.TryActivateFreezeMode();
+            FreezeManager.Instance.RegisterShot();
+        }
+        
+
+        
     }
 
     public bool CanShoot()
