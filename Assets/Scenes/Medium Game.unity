@@ -1662,21 +1662,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 101044136}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &109541781
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 919132149130085570}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62f882c6f74cef943a5df1d507a2bd47, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  shotType: 0
-  hasScored: 0
-  hitGround: 0
 --- !u!135 &109541783
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -3716,8 +3701,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 271459987}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.0013313293, y: 0.7875835, z: 3.7253227}
-  m_LocalScale: {x: 0.49559265, y: 0.3778168, z: 0.37095547}
+  m_LocalPosition: {x: -0.0013313293, y: 0.872, z: 3.7253227}
+  m_LocalScale: {x: 0.34049252, y: 0.32061532, z: 0.31637308}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1816707883}
@@ -24978,8 +24963,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1731679687}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.5044608, y: -1.3990593, z: 5.809633}
-  m_LocalScale: {x: 0.49559265, y: 0.3778168, z: 0.37095547}
+  m_LocalPosition: {x: -1.5044608, y: -1.321, z: 5.809633}
+  m_LocalScale: {x: 0.34049252, y: 0.32061532, z: 0.31637308}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1501651053}
@@ -35333,7 +35318,7 @@ GameObject:
   - component: {fileID: 3469287837574435294}
   - component: {fileID: 3469287837574435295}
   - component: {fileID: 109541783}
-  - component: {fileID: 109541781}
+  - component: {fileID: 3469287837574435296}
   m_Layer: 3
   m_Name: AI BasketBall
   m_TagString: AIBall
@@ -40954,6 +40939,21 @@ MonoBehaviour:
   handTransform: {fileID: 788824176}
   dropDistance: 1.5
   frequency: 2
+--- !u!114 &3469287837574435296
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919132149130085570}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d01b2e97b45a59d46872e1f68df88a34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shotType: 0
+  hasScored: 0
+  hitGround: 0
 --- !u!33 &3469287838637091522
 MeshFilter:
   m_ObjectHideFlags: 0

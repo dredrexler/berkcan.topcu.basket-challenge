@@ -1173,21 +1173,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: e95331dcdf07d764c8c7848312579fc0, type: 3}
   - {fileID: 21300000, guid: e2fac6c8c04ced341b56908bd9350cca, type: 3}
   fps: 20
---- !u!114 &109541781
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 919132149130085570}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62f882c6f74cef943a5df1d507a2bd47, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  shotType: 0
-  hasScored: 0
-  hitGround: 0
 --- !u!135 &109541783
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2629,8 +2614,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 271459987}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.011378288, y: -0.1866908, z: 3.3254585}
-  m_LocalScale: {x: 0.49559265, y: 0.3778168, z: 0.37095547}
+  m_LocalPosition: {x: -0.011378288, y: -0.088, z: 3.3254585}
+  m_LocalScale: {x: 0.34049252, y: 0.32061532, z: 0.31637308}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 454715236}
@@ -16454,8 +16439,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1731679687}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.715, y: 2.676, z: 12.709}
-  m_LocalScale: {x: 0.49559265, y: 0.3778168, z: 0.37095547}
+  m_LocalPosition: {x: -5.715, y: 2.782, z: 12.709}
+  m_LocalScale: {x: 0.34049252, y: 0.32061532, z: 0.31637308}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -25074,10 +25059,10 @@ GameObject:
   - component: {fileID: 3469287837574435293}
   - component: {fileID: 1711813855659025687}
   - component: {fileID: 109541784}
+  - component: {fileID: 3469287837574435296}
   - component: {fileID: 3469287837574435294}
   - component: {fileID: 3469287837574435295}
   - component: {fileID: 109541783}
-  - component: {fileID: 109541781}
   m_Layer: 3
   m_Name: AI BasketBall
   m_TagString: AIBall
@@ -30698,6 +30683,21 @@ MonoBehaviour:
   handTransform: {fileID: 788824176}
   dropDistance: 1.5
   frequency: 2
+--- !u!114 &3469287837574435296
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919132149130085570}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d01b2e97b45a59d46872e1f68df88a34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shotType: 0
+  hasScored: 0
+  hitGround: 0
 --- !u!33 &3469287838637091522
 MeshFilter:
   m_ObjectHideFlags: 0

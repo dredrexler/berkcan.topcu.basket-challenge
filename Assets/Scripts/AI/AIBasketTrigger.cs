@@ -16,7 +16,7 @@ public class AIBasketTrigger : MonoBehaviour
         if (!GameManager.Instance.GameStarted) return;
         if (!other.CompareTag("AIBall")) return;
 
-        var status = other.GetComponent<BallStatus>();
+        var status = other.GetComponent<AIBallStatus>();
         if (status == null || status.hasScored) return;
 
         Debug.Log("AI Ball entered the basket!");

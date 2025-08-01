@@ -137,7 +137,7 @@ public class FreezeManager : MonoBehaviour
         freezeUsedThisPeriod = true;
         aiShotManager.SetFrozen(true);
         if (floatingTextManager != null)
-            floatingTextManager.ShowMessage("AI Is Frozen!", Color.red);
+            floatingTextManager.ShowMessage("AI Is Frozen!", Color.blue);
         yield return new WaitForSeconds(10f);
         IsAIFrozen = false;
         aiShotManager.SetFrozen(false);

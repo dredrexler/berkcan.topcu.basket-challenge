@@ -33,7 +33,7 @@ public class AIBallShooter : MonoBehaviour
     {
         Vector3 offset = GetOffsetForShot(type, currentPositionIndex);
         Vector3 targetPos = target.position + offset;
-        var status = GetComponent<BallStatus>();
+        var status = GetComponent<AIBallStatus>();
         status.hasScored = false;
 
         switch (type)

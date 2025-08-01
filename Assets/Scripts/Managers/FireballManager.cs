@@ -71,6 +71,7 @@ public class FireballManager : MonoBehaviour
 
     private IEnumerator FireballTimer()
     {
+        
         float elapsed = 0f;
         while (elapsed < fireballDuration)
         {
@@ -79,6 +80,7 @@ public class FireballManager : MonoBehaviour
             yield return null;
         }
         EndFireball();
+        
     }
 
     private void EndFireball()
@@ -95,6 +97,12 @@ public class FireballManager : MonoBehaviour
             ballVFXInstance.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             Destroy(ballVFXInstance.gameObject, ballVFXInstance.main.startLifetime.constantMax);
             ballVFXInstance = null;
+        }
+        // Stop the fireball timer if it's running
+        if (fireballRoutine != null)
+        {
+            StopCoroutine(fireballRoutine);
+            fireballRoutine = null;
         }
 
         isFireballActive = false;

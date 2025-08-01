@@ -110,7 +110,7 @@ public class AIShotManager : MonoBehaviour
         aiBallTransform.position = pendingLaunchPos;
 
         // actually shoot
-        var status = aiBallShooter.GetComponent<BallStatus>();
+        var status = aiBallShooter.GetComponent<AIBallStatus>();
         status.hitGround = false;
         status.hasScored = false;
         aiBallShooter.ShootWithOutcome(type);
@@ -125,7 +125,7 @@ public class AIShotManager : MonoBehaviour
         if (FreezeManager.Instance.IsAIFrozen)
             yield break;
 
-        var status = aiBallShooter.GetComponent<BallStatus>();
+        var status = aiBallShooter.GetComponent<AIBallStatus>();
         yield return new WaitUntil(() => status.hitGround);
         //yield return new WaitForSeconds(1f);
 
