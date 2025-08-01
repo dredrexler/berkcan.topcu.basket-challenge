@@ -32,9 +32,9 @@ public class TutorialManager : MonoBehaviour
         inFreezeMode = inBonusMode = inClutchTime = false;
     }
 
-    /// <summary>
-    /// Called after every shot by ShotManager/BasketTrigger
-    /// </summary>
+
+    /// /// Called after every shot by ShotManager/BasketTrigger
+
     public void OnPlayerShot(ShotType shotType, bool scored)
     {
         // Step 1: Any 3 baskets scored (made, doesn't matter type)
