@@ -10,8 +10,6 @@ public class GamePlayMusicManager : MonoBehaviour
     void Awake()
     {
         _src = GetComponent<AudioSource>();
-        // Optional: Don’t destroy on load if you want it to persist across gameplay scenes
-        //DontDestroyOnLoad(gameObject);
     }
 
     void Start()
